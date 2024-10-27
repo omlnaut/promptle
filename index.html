@@ -3,15 +3,47 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Sentence Guessing Game</title>
+    <title>Sentence Guessing Game with Image</title>
     <style>
         /* CSS styles */
+
+        /* Style the image URL input field */
+        #image-url-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Main container holding the image and the game */
+        #main-container {
+            display: flex;
+            align-items: flex-start;
+            /* Align items at the top */
+            gap: 20px;
+        }
+
+        /* Image container */
+        #image-container {
+            flex-shrink: 0;
+            /* Prevent the image container from shrinking */
+        }
+
+        #displayed-image {
+            max-width: 200px;
+            max-height: 300px;
+            border: 1px solid #ccc;
+            object-fit: contain;
+        }
+
+        /* Game container styles */
         #game-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
+        /* Word container styles */
         .word-container {
             display: flex;
             flex-direction: column;
@@ -35,6 +67,7 @@
             text-align: center;
         }
 
+        /* Control buttons */
         #check-button,
         #reset-button {
             padding: 10px 20px;
@@ -42,14 +75,34 @@
             margin-top: 20px;
             margin-right: 10px;
         }
+
+        /* Optional: Body styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
     </style>
 </head>
 
 <body>
 
-    <div id="game-container">
-        <!-- Word placeholders and guess rows will be added here -->
+    <!-- Image URL Input Field -->
+    <input type="text" id="image-url-input" placeholder="Paste image URL here" />
+
+    <!-- Main Container -->
+    <div id="main-container">
+        <!-- Image Container -->
+        <div id="image-container">
+            <img id="displayed-image" src="" alt="Your image will appear here" />
+        </div>
+
+        <!-- Game Container -->
+        <div id="game-container">
+            <!-- Word placeholders and guess rows will be added here -->
+        </div>
     </div>
+
+    <!-- Control Buttons -->
     <button id="check-button">Check</button>
     <button id="reset-button">Reset Game</button>
 

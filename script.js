@@ -177,12 +177,42 @@ function startGame() {
 
     displaySentencePlaceholders();
     createGuessRow(currentWordIndex);
+    handleImageURLInput();
 }
 
 // Function to reset the game
 function resetGame() {
+    // Clear the image
+    const displayedImage = document.getElementById('displayed-image');
+    displayedImage.src = '';
+
+    // Clear the image URL input field
+    const imageUrlInput = document.getElementById('image-url-input');
+    imageUrlInput.value = '';
+
     startGame();
 }
+
+
+// Function to handle image URL input
+function handleImageURLInput() {
+    const imageUrlInput = document.getElementById('image-url-input');
+    const displayedImage = document.getElementById('displayed-image');
+
+    // Add event listener for 'input' event
+    imageUrlInput.addEventListener('input', function () {
+        const url = imageUrlInput.value;
+        displayedImage.src = url;
+    });
+
+    // Optional: Handle image loading errors
+    displayedImage.addEventListener('error', function () {
+        displayedImage.src = '';
+        // Optionally, display an error message or alert
+        // alert('Failed to load image. Please check the URL.');
+    });
+}
+
 
 // Initialize the game on page load
 window.onload = startGame;
