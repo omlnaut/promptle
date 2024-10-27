@@ -5,32 +5,47 @@
     <meta charset="UTF-8">
     <title>Word Guessing Game</title>
     <style>
-        /* Add this inside the <style> tags in index.html */
-
+        /* CSS styles */
         #game-container {
             display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        #game-container input {
+        .guess-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .letter-input {
             width: 40px;
             height: 40px;
             font-size: 24px;
             text-align: center;
         }
 
-        #check-button {
+        #check-button,
+        #reset-button {
             padding: 10px 20px;
             font-size: 16px;
+            margin-top: 20px;
+        }
+
+        #attempts-remaining {
+            font-size: 18px;
+            margin-top: 10px;
         }
     </style>
 </head>
 
 <body>
 
-    <div id="game-container"></div>
+    <div id="game-container">
+        <!-- Guess rows will be appended here -->
+    </div>
+    <p id="attempts-remaining">Attempts Remaining: 6</p>
     <button id="check-button">Check</button>
+    <button id="reset-button">Reset Game</button>
 
     <script src="script.js"></script>
 </body>
