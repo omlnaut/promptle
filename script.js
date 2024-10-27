@@ -1,5 +1,4 @@
 // script.js
-
 const sentenceToGuess = ["HELLO", "WORLD", "HOW", "ARE", "YOU"];
 let currentWordIndex = 0;
 let currentGuessRow;
@@ -193,29 +192,84 @@ function resetGame() {
     startGame();
 }
 
-
 // Function to handle image URL input
 function handleImageURLInput() {
     const imageUrlInput = document.getElementById('image-url-input');
     const displayedImage = document.getElementById('displayed-image');
 
-    // Add event listener for 'input' event
     imageUrlInput.addEventListener('input', function () {
         const url = imageUrlInput.value;
         displayedImage.src = url;
     });
 
-    // Optional: Handle image loading errors
+    displayedImage.addEventListener('load', function () {
+        // Once the image is loaded, request the prompt from the server
+        getPromptFromImage(displayedImage.src);
+    });
+
     displayedImage.addEventListener('error', function () {
         displayedImage.src = '';
-        // Optionally, display an error message or alert
-        // alert('Failed to load image. Please check the URL.');
+        alert('Failed to load image. Please check the URL.');
     });
 }
 
+// Function to get prompt from image using OpenAI API
+function getPromptFromImage(imageUrl) {
+    console.log('Getting prompt from image...');
+    const requestData = {
+        model: "gpt-4o",
+        messages: [
+            {
+                role: "user",
+                content: [
+                    { type: "text", text: "come up with a prompt with at most 7 words that would generate this image as closely as possible" },
+                    { type: "image_url", image_url: { url: imageUrl } }
+                ]
+            }
+        ],
+        max_tokens: 300
+    };
+
+    fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer <redacted>`
+        },
+        body: JSON.stringify(requestData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.choices && data.choices[0].message.content) {
+                // Set the generated prompt as the sentence to guess
+                sentenceToGuess.length = 0; // Clear previous sentence
+                description = data.choices[0].message.content;
+                words = description.split(' ');
+                words = words.map(word => word.replace(/[^a-zA-Z]/g, '').toUpperCase())
+                    .filter(word => word.length >= 3);
+
+                words.forEach(word => {
+                    sentenceToGuess.push(word);
+                });
+                console.log('Sentence to guess:', sentenceToGuess);
+                startGame();
+            } else {
+                alert('Error generating prompt from image.');
+            }
+        })
+        .catch(error => {
+            console.error('Error getting prompt from image:', error);
+            alert('Error getting prompt from image.');
+        });
+}
+
+
 
 // Initialize the game on page load
-window.onload = startGame;
+window.onload = function () {
+    handleImageURLInput();
+    startGame();
+};
 
 // Event listeners
 document.getElementById('check-button').addEventListener('click', checkGuess);
