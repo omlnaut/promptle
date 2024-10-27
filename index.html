@@ -3,13 +3,24 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Word Guessing Game</title>
+    <title>Sentence Guessing Game</title>
     <style>
         /* CSS styles */
         #game-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 20px;
+        }
+
+        .word-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .word-placeholder {
+            font-size: 24px;
+            letter-spacing: 5px;
         }
 
         .guess-row {
@@ -29,11 +40,7 @@
             padding: 10px 20px;
             font-size: 16px;
             margin-top: 20px;
-        }
-
-        #attempts-remaining {
-            font-size: 18px;
-            margin-top: 10px;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -41,9 +48,8 @@
 <body>
 
     <div id="game-container">
-        <!-- Guess rows will be appended here -->
+        <!-- Word placeholders and guess rows will be added here -->
     </div>
-    <p id="attempts-remaining">Attempts Remaining: 6</p>
     <button id="check-button">Check</button>
     <button id="reset-button">Reset Game</button>
 
