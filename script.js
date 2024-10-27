@@ -1,5 +1,5 @@
 // script.js
-const sentenceToGuess = ["HELLO", "WORLD", "HOW", "ARE", "YOU"];
+const sentenceToGuess = ["HELLE", "WORLD", "HOW", "ARE", "YOU"];
 let currentWordIndex = 0;
 let currentGuessRow;
 let gameOver = false;
@@ -94,8 +94,25 @@ function createGuessRow(wordIndex) {
 
     // Focus on the first input
     const inputs = currentGuessRow.querySelectorAll('.letter-input');
-    inputs[0].value = word[0];
+
     inputs[inputs.length - 1].value = word[word.length - 1];
+
+    const firstLetter = word[0];
+    for (let i = 0; i < inputs.length - 1; i++) {
+        if (word[i] === firstLetter) {
+            inputs[i].value = firstLetter;
+        }
+    }
+
+    const lastLetter = word[word.length - 1];
+    for (let i = 1; i < inputs.length - 1; i++) {
+        if (word[i] === lastLetter) {
+            inputs[i].value = lastLetter;
+        }
+    }
+
+
+
     inputs[1].focus();
 
 }
