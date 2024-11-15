@@ -1,8 +1,14 @@
 // script.js
-const sentenceToGuess = ["HELLE", "WORLD", "HOW", "ARE", "YOU"];
+// Test mode sentence
+const testSentence = ["BLUE", "FLUFFY", "CAT", "SLEEPING", "PEACEFULLY"];
+
+// Current sentence to guess
+let sentenceToGuess = [];
 let currentWordIndex = 0;
 let currentGuessRow;
 let gameOver = false;
+let isTestMode = false;
+let guessHistory = [];  // Array to store guess results for each word
 
 // Function to display placeholders for each word
 function displaySentencePlaceholders() {
@@ -71,7 +77,8 @@ function createGuessRow(wordIndex) {
                 if (allFilled) {
                     checkGuess();
                 } else {
-                    alert('Please fill in all the letters.');
+                    const errorMessage = document.getElementById('guess-error');
+                    errorMessage.textContent = 'Please fill in all the letters.';
                 }
             }
             if (event.key === 'Backspace') {
@@ -111,10 +118,7 @@ function createGuessRow(wordIndex) {
         }
     }
 
-
-
     inputs[1].focus();
-
 }
 
 // Function to check the user's guess for the current word
@@ -125,6 +129,7 @@ function checkGuess() {
     const userGuess = [];
     let wordArray = sentenceToGuess[currentWordIndex].split('');
     let guessArray = [];
+    let currentWordGuesses = guessHistory[currentWordIndex] || [];
 
     // Collect user input
     inputs.forEach((input) => {
@@ -134,33 +139,44 @@ function checkGuess() {
 
     // Check for incomplete inputs
     if (userGuess.includes('')) {
-        alert('Please fill in all the letters.');
+        const errorMessage = document.getElementById('guess-error');
+        errorMessage.textContent = 'Please fill in all the letters.';
         return;
     }
+
+    // Array to store the result of this guess
+    let guessResult = [];
 
     // Evaluate the guess
     // First pass: Correct letters in correct positions
     inputs.forEach((input, index) => {
         if (userGuess[index] === wordArray[index]) {
-            input.style.backgroundColor = 'green';
+            input.style.backgroundColor = '#6aaa64';  // Green
             wordArray[index] = null;
             guessArray[index] = null;
+            guessResult[index] = 'correct';
         }
     });
 
     // Second pass: Correct letters in wrong positions
     inputs.forEach((input, index) => {
         if (guessArray[index] && wordArray.includes(guessArray[index])) {
-            input.style.backgroundColor = 'yellow';
+            input.style.backgroundColor = '#c9b458';  // Yellow
             wordArray[wordArray.indexOf(guessArray[index])] = null;
             guessArray[index] = null;
-        } else if (input.style.backgroundColor !== 'green') {
-            input.style.backgroundColor = 'red';
+            guessResult[index] = 'present';
+        } else if (input.style.backgroundColor !== 'rgb(106, 170, 100)') {  // If not green
+            input.style.backgroundColor = '#787c7e';  // Gray
+            guessResult[index] = 'absent';
         }
 
         // Disable the input
         input.disabled = true;
     });
+
+    // Store this guess result
+    currentWordGuesses.push(guessResult);
+    guessHistory[currentWordIndex] = currentWordGuesses;
 
     // Check if the word was guessed correctly
     if (userGuess.join('') === sentenceToGuess[currentWordIndex]) {
@@ -176,8 +192,10 @@ function checkGuess() {
             // Create a guess row for the next word
             createGuessRow(currentWordIndex);
         } else {
-            // All words guessed
-            alert('Congratulations! You guessed the entire sentence!');
+            // All words guessed - show summary
+            displayGuessSummary();
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = 'Congratulations! You guessed the entire sentence!';
             gameOver = true;
         }
     } else {
@@ -186,48 +204,144 @@ function checkGuess() {
     }
 }
 
+// Function to display the guess summary
+function displayGuessSummary() {
+    const summaryContainer = document.getElementById('guess-summary');
+    summaryContainer.innerHTML = '';  // Clear existing content
+    summaryContainer.style.display = 'block';  // Make visible
+
+    // For each word
+    guessHistory.forEach((wordGuesses, wordIndex) => {
+        // For each guess of this word
+        wordGuesses.forEach(guess => {
+            const guessRow = document.createElement('div');
+            guessRow.classList.add('summary-word');
+
+            // Create colored boxes for each letter
+            guess.forEach(result => {
+                const letter = document.createElement('div');
+                letter.classList.add('summary-letter', `summary-${result}`);
+                guessRow.appendChild(letter);
+            });
+
+            summaryContainer.appendChild(guessRow);
+        });
+
+        // Add a small gap between words if not the last word
+        if (wordIndex < guessHistory.length - 1) {
+            const gap = document.createElement('div');
+            gap.style.height = '10px';
+            summaryContainer.appendChild(gap);
+        }
+    });
+}
+
 // Function to start the game
 function startGame() {
     currentWordIndex = 0;
     gameOver = false;
 
-    displaySentencePlaceholders();
-    createGuessRow(currentWordIndex);
-    handleImageURLInput();
+    // Initialize with test sentence if in test mode
+    if (isTestMode && sentenceToGuess.length === 0) {
+        sentenceToGuess = [...testSentence];
+    }
+
+    // Only proceed if we have a sentence to guess
+    if (sentenceToGuess.length > 0) {
+        displaySentencePlaceholders();
+        createGuessRow(currentWordIndex);
+    }
+    
+    // Only set up image input handling if not in test mode
+    if (!isTestMode) {
+        setupImageInput();
+    }
+}
+
+// Function to set up image input handling
+function setupImageInput() {
+    const imageUrlInput = document.getElementById('image-url-input');
+    const displayedImage = document.getElementById('displayed-image');
+    const errorMessage = document.getElementById('image-error');
+
+    // Remove any existing event listeners
+    const newImageInput = imageUrlInput.cloneNode(true);
+    imageUrlInput.parentNode.replaceChild(newImageInput, imageUrlInput);
+    const newDisplayedImage = displayedImage.cloneNode(true);
+    displayedImage.parentNode.replaceChild(newDisplayedImage, displayedImage);
+
+    // Set up new event listeners
+    newImageInput.addEventListener('input', function () {
+        const url = newImageInput.value.trim();
+        if (url) {
+            newDisplayedImage.src = url;
+        } else {
+            newDisplayedImage.src = '';
+            errorMessage.textContent = ''; // Clear error message when input is cleared
+        }
+    });
+
+    newDisplayedImage.addEventListener('load', function () {
+        if (!isTestMode && newDisplayedImage.src && !newDisplayedImage.src.endsWith('undefined')) {
+            errorMessage.textContent = ''; // Clear error message on successful load
+            getPromptFromImage(newDisplayedImage.src);
+        }
+    });
+
+    newDisplayedImage.addEventListener('error', function (e) {
+        // Only show error if there was actually a URL attempted
+        if (newDisplayedImage.src && !newDisplayedImage.src.endsWith('undefined')) {
+            newDisplayedImage.src = '';
+            errorMessage.textContent = 'Failed to load image. Please check the URL.';
+        }
+    });
 }
 
 // Function to reset the game
 function resetGame() {
-    // Clear the image
+    // Clear the image and error message
     const displayedImage = document.getElementById('displayed-image');
+    const errorMessage = document.getElementById('image-error');
+    const guessSummary = document.getElementById('guess-summary');
+    
     displayedImage.src = '';
+    errorMessage.textContent = '';
+    guessSummary.style.display = 'none';
+    guessSummary.innerHTML = '';
+
+    // Reset guess history
+    guessHistory = [];
 
     // Clear the image URL input field
     const imageUrlInput = document.getElementById('image-url-input');
     imageUrlInput.value = '';
 
+    // Clear the current sentence
+    sentenceToGuess = [];
+
+    // Initialize with test sentence if in test mode
+    if (isTestMode) {
+        sentenceToGuess = [...testSentence];
+    }
+
     startGame();
 }
 
-// Function to handle image URL input
-function handleImageURLInput() {
-    const imageUrlInput = document.getElementById('image-url-input');
-    const displayedImage = document.getElementById('displayed-image');
+// Function to handle mode toggle
+function handleModeToggle() {
+    const modeToggle = document.getElementById('mode-toggle');
+    isTestMode = modeToggle.checked;
+    resetGame();
+}
 
-    imageUrlInput.addEventListener('input', function () {
-        const url = imageUrlInput.value;
-        displayedImage.src = url;
-    });
-
-    displayedImage.addEventListener('load', function () {
-        // Once the image is loaded, request the prompt from the server
-        getPromptFromImage(displayedImage.src);
-    });
-
-    displayedImage.addEventListener('error', function () {
-        displayedImage.src = '';
-        alert('Failed to load image. Please check the URL.');
-    });
+// Function to get the sentence based on current mode
+function getSentence(imageUrl) {
+    if (isTestMode) {
+        sentenceToGuess = [...testSentence];
+        startGame();
+    } else {
+        getPromptFromImage(imageUrl);
+    }
 }
 
 // Function to get prompt from image using OpenAI API
@@ -239,7 +353,7 @@ function getPromptFromImage(imageUrl) {
             {
                 role: "user",
                 content: [
-                    { type: "text", text: "come up with a prompt with at most 7 words that would generate this image as closely as possible" },
+                    { type: "text", text: "Create a precise, seven-word prompt capturing this image's essence, using detailed and nuanced language with minimal common terms" },
                     { type: "image_url", image_url: { url: imageUrl } }
                 ]
             }
@@ -251,7 +365,7 @@ function getPromptFromImage(imageUrl) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer <redacted>`
+            'Authorization': `Bearer`
         },
         body: JSON.stringify(requestData)
     })
@@ -271,23 +385,38 @@ function getPromptFromImage(imageUrl) {
                 console.log('Sentence to guess:', sentenceToGuess);
                 startGame();
             } else {
-                alert('Error generating prompt from image.');
+                const errorMessage = document.getElementById('api-error');
+                errorMessage.textContent = 'Error generating prompt from image.';
             }
         })
         .catch(error => {
             console.error('Error getting prompt from image:', error);
-            alert('Error getting prompt from image.');
+            const errorMessage = document.getElementById('api-error');
+            errorMessage.textContent = 'Error getting prompt from image.';
         });
 }
 
-
-
 // Initialize the game on page load
 window.onload = function () {
-    handleImageURLInput();
+    // Set initial mode from checkbox state
+    const modeToggle = document.getElementById('mode-toggle');
+    isTestMode = modeToggle.checked;
+    
+    // Initialize sentence if in test mode
+    if (isTestMode) {
+        sentenceToGuess = [...testSentence];
+    }
+    
+    // Clear any existing image and error message
+    const displayedImage = document.getElementById('displayed-image');
+    const errorMessage = document.getElementById('image-error');
+    displayedImage.src = '';
+    errorMessage.textContent = '';
+    
     startGame();
 };
 
 // Event listeners
 document.getElementById('check-button').addEventListener('click', checkGuess);
 document.getElementById('reset-button').addEventListener('click', resetGame);
+document.getElementById('mode-toggle').addEventListener('change', handleModeToggle);

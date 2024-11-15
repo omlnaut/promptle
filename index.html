@@ -1,112 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Sentence Guessing Game with Image</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promptle - Image Description Guessing Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS styles */
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --success-color: #6aaa64;
+            --warning-color: #c9b458;
+            --error-color: #787c7e;
+            --background-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
 
-        /* Style the image URL input field */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .input-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .input-container:hover {
+            transform: translateY(-2px);
+        }
+
         #image-url-input {
             width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
         }
 
-        /* Main container holding the image and the game */
-        #main-container {
+        #image-url-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            min-height: 20px;
+        }
+
+        .mode-toggle {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .mode-toggle label {
             display: flex;
-            align-items: flex-start;
-            /* Align items at the top */
-            gap: 20px;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
         }
 
-        /* Image container */
+        .mode-toggle input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--primary-color);
+        }
+
+        #main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
         #image-container {
-            flex-shrink: 0;
-            /* Prevent the image container from shrinking */
+            position: sticky;
+            top: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
 
         #displayed-image {
-            max-width: 200px;
-            max-height: 300px;
-            border: 1px solid #ccc;
+            width: 100%;
+            max-height: 400px;
             object-fit: contain;
+            border-radius: calc(var(--border-radius) - 4px);
         }
 
-        /* Game container styles */
+        .guess-summary {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .summary-word {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .summary-letter {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .summary-letter:hover {
+            transform: scale(1.1);
+        }
+
+        .summary-correct {
+            background-color: var(--success-color);
+        }
+
+        .summary-present {
+            background-color: var(--warning-color);
+        }
+
+        .summary-absent {
+            background-color: var(--error-color);
+        }
+
         #game-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
 
-        /* Word container styles */
         .word-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            margin-bottom: 1.5rem;
         }
 
         .word-placeholder {
-            font-size: 24px;
-            letter-spacing: 5px;
+            font-size: 1.25rem;
+            letter-spacing: 4px;
+            color: #64748b;
+            margin-bottom: 0.5rem;
         }
 
         .guess-row {
             display: flex;
-            gap: 5px;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .letter-input {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
             text-align: center;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.2s ease;
         }
 
-        /* Control buttons */
-        #check-button,
-        #reset-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 20px;
-            margin-right: 10px;
+        .letter-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            transform: scale(1.05);
         }
 
-        /* Optional: Body styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+        .success-message {
+            color: var(--success-color);
+            font-weight: 500;
+            text-align: center;
+            padding: 1rem;
+            background: #dcfce7;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: white;
+            background: var(--primary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            #main-container {
+                grid-template-columns: 1fr;
+            }
+
+            #image-container {
+                position: static;
+            }
         }
     </style>
 </head>
-
 <body>
+    <div class="container">
+        <header class="header">
+            <h1>Promptle</h1>
+            <p>Guess the image description, one word at a time!</p>
+        </header>
 
-    <!-- Image URL Input Field -->
-    <input type="text" id="image-url-input" placeholder="Paste image URL here" />
-
-    <!-- Main Container -->
-    <div id="main-container">
-        <!-- Image Container -->
-        <div id="image-container">
-            <img id="displayed-image" src="" alt="Your image will appear here" />
+        <div class="input-container">
+            <input type="text" id="image-url-input" placeholder="Paste image URL here" />
+            <div id="image-error" class="error-message"></div>
+            <div id="api-error" class="error-message"></div>
         </div>
 
-        <!-- Game Container -->
-        <div id="game-container">
-            <!-- Word placeholders and guess rows will be added here -->
+        <div class="mode-toggle">
+            <label>
+                <input type="checkbox" id="mode-toggle" />
+                Use Test Mode (Hardcoded Sentence)
+            </label>
+        </div>
+
+        <div id="main-container">
+            <div id="image-container">
+                <img id="displayed-image" src="" alt="Your image will appear here" />
+                <div id="guess-summary" class="guess-summary"></div>
+            </div>
+
+            <div id="game-container">
+                <!-- Word placeholders and guess rows will be added here -->
+                <div id="guess-error" class="error-message"></div>
+                <div id="success-message" class="success-message"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="check-button">Check</button>
+            <button id="reset-button">Reset Game</button>
         </div>
     </div>
 
-    <!-- Control Buttons -->
-    <button id="check-button">Check</button>
-    <button id="reset-button">Reset Game</button>
-
     <script src="script.js"></script>
 </body>
-
 </html>
