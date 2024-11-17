@@ -392,13 +392,10 @@ function getPromptFromImage(imageUrl) {
             if (data.choices && data.choices[0].message.content) {
                 // Set the generated prompt as the sentence to guess
                 sentenceToGuess.length = 0; // Clear previous sentence
-                description = data.choices[0].message.content;
-                words = description.split(' ');
-                words = words.map(word => word.replace(/[^a-zA-Z]/g, '').toUpperCase())
-                    .filter(word => word.length >= 3);
-
+                const description = data.choices[0].message.content;
+                const words = description.split(' ');
                 words.forEach(word => {
-                    sentenceToGuess.push(word);
+                    sentenceToGuess.push(word.replace(/[^a-zA-Z]/g, '').toUpperCase());
                 });
                 console.log('Sentence to guess:', sentenceToGuess);
                 startGame();
