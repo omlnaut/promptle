@@ -1,3 +1,6 @@
+// Import configuration
+import config from './config.js';
+
 // script.js
 // Test mode sentence
 const testSentence = ["BLUE", "FLUFFY", "CAT", "SLEEPING", "PEACEFULLY"];
@@ -151,7 +154,7 @@ function checkGuess() {
     // First pass: Correct letters in correct positions
     inputs.forEach((input, index) => {
         if (userGuess[index] === wordArray[index]) {
-            input.style.backgroundColor = '#6aaa64';  // Green
+            updateLetterColor(input, 'correct');
             wordArray[index] = null;
             guessArray[index] = null;
             guessResult[index] = 'correct';
@@ -161,12 +164,12 @@ function checkGuess() {
     // Second pass: Correct letters in wrong positions
     inputs.forEach((input, index) => {
         if (guessArray[index] && wordArray.includes(guessArray[index])) {
-            input.style.backgroundColor = '#c9b458';  // Yellow
+            updateLetterColor(input, 'present');
             wordArray[wordArray.indexOf(guessArray[index])] = null;
             guessArray[index] = null;
             guessResult[index] = 'present';
-        } else if (input.style.backgroundColor !== 'rgb(106, 170, 100)') {  // If not green
-            input.style.backgroundColor = '#787c7e';  // Gray
+        } else if (input.style.backgroundColor !== 'rgb(26, 127, 55)') {  // If not green
+            updateLetterColor(input, 'absent');
             guessResult[index] = 'absent';
         }
 
@@ -201,6 +204,23 @@ function checkGuess() {
     } else {
         // Allow the user to try again on the same word
         createGuessRow(currentWordIndex);
+    }
+}
+
+// Function to update letter color
+function updateLetterColor(input, status) {
+    switch (status) {
+        case 'correct':
+            input.style.backgroundColor = '#1a7f37';  // Darker green
+            break;
+        case 'present':
+            input.style.backgroundColor = '#d4a72c';  // Orange-yellow
+            break;
+        case 'absent':
+            input.style.backgroundColor = '#666666';  // Gray
+            break;
+        default:
+            input.style.backgroundColor = 'white';
     }
 }
 
@@ -251,14 +271,9 @@ function startGame() {
         displaySentencePlaceholders();
         createGuessRow(currentWordIndex);
     }
-    
-    // Only set up image input handling if not in test mode
-    if (!isTestMode) {
-        setupImageInput();
-    }
 }
 
-// Function to set up image input handling
+// Function to set up image input handling (called only once at page load)
 function setupImageInput() {
     const imageUrlInput = document.getElementById('image-url-input');
     const displayedImage = document.getElementById('displayed-image');
@@ -284,7 +299,10 @@ function setupImageInput() {
     newDisplayedImage.addEventListener('load', function () {
         if (!isTestMode && newDisplayedImage.src && !newDisplayedImage.src.endsWith('undefined')) {
             errorMessage.textContent = ''; // Clear error message on successful load
-            getPromptFromImage(newDisplayedImage.src);
+            // Only generate description if we don't already have one
+            if (sentenceToGuess.length === 0) {
+                getPromptFromImage(newDisplayedImage.src);
+            }
         }
     });
 
@@ -365,7 +383,7 @@ function getPromptFromImage(imageUrl) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer`
+            'Authorization': `Bearer ${config.OPENAI_API_KEY}`
         },
         body: JSON.stringify(requestData)
     })
@@ -412,6 +430,9 @@ window.onload = function () {
     const errorMessage = document.getElementById('image-error');
     displayedImage.src = '';
     errorMessage.textContent = '';
+    
+    // Set up image input handling (only once)
+    setupImageInput();
     
     startGame();
 };

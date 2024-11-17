@@ -9,6 +9,10 @@
         :root {
             --primary-color: #6366f1;
             --secondary-color: #4f46e5;
+            /* Color-blind friendly colors */
+            --correct-color: #1a7f37;     /* Darker green */
+            --present-color: #d4a72c;     /* Orange-yellow */
+            --absent-color: #666666;      /* Gray */
             --success-color: #6aaa64;
             --warning-color: #c9b458;
             --error-color: #787c7e;
@@ -115,6 +119,8 @@
             grid-template-columns: 300px 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
+            min-height: 600px;
+            align-items: start;
         }
 
         #image-container {
@@ -124,19 +130,42 @@
             padding: 1rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        #image-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #image-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #image-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        #image-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
         }
 
         #displayed-image {
             width: 100%;
+            height: auto;
             max-height: 400px;
             object-fit: contain;
             border-radius: calc(var(--border-radius) - 4px);
+            margin-bottom: 1rem;
         }
 
         .guess-summary {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
             border-top: 2px solid #e2e8f0;
+            overflow-y: auto;
         }
 
         .summary-word {
@@ -150,6 +179,8 @@
             height: 24px;
             border-radius: 4px;
             transition: transform 0.2s ease;
+            position: relative;
+            border: 2px solid transparent;
         }
 
         .summary-letter:hover {
@@ -157,15 +188,26 @@
         }
 
         .summary-correct {
-            background-color: var(--success-color);
+            background-color: var(--correct-color);
+            /* Add checkmark pattern */
+            background-image: linear-gradient(45deg, transparent 45%, #ffffff 45%, #ffffff 55%, transparent 55%),
+                            linear-gradient(-45deg, transparent 45%, #ffffff 45%, #ffffff 55%, transparent 55%);
+            background-size: 10px 10px;
+            background-position: center;
         }
 
         .summary-present {
-            background-color: var(--warning-color);
+            background-color: var(--present-color);
+            /* Add dots pattern */
+            background-image: radial-gradient(circle, #ffffff 2px, transparent 2px);
+            background-size: 8px 8px;
         }
 
         .summary-absent {
-            background-color: var(--error-color);
+            background-color: var(--absent-color);
+            /* Add X pattern */
+            background-image: linear-gradient(45deg, transparent 45%, #ffffff 45%, #ffffff 55%, transparent 55%);
+            background-size: 8px 8px;
         }
 
         #game-container {
@@ -201,12 +243,32 @@
             border-radius: 8px;
             background: white;
             transition: all 0.2s ease;
+            position: relative;
         }
 
         .letter-input:focus {
             outline: none;
             border-color: var(--primary-color);
             transform: scale(1.05);
+        }
+
+        .letter-input[style*="background-color: rgb(26, 127, 55)"] {
+            background-image: linear-gradient(45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%),
+                            linear-gradient(-45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%) !important;
+            background-size: 10px 10px !important;
+            color: white;
+        }
+
+        .letter-input[style*="background-color: rgb(212, 167, 44)"] {
+            background-image: radial-gradient(circle, #ffffff22 2px, transparent 2px) !important;
+            background-size: 8px 8px !important;
+            color: white;
+        }
+
+        .letter-input[style*="background-color: rgb(102, 102, 102)"] {
+            background-image: linear-gradient(45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%) !important;
+            background-size: 8px 8px !important;
+            color: white;
         }
 
         .success-message {
@@ -296,6 +358,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
