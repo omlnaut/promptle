@@ -2,5 +2,5 @@ POST http://localhost:7071/api/DescribeImage HTTP/1.1
 content-type: application/json
 
 {
-    "ImageUrl": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/2da6fc95-ef30-4ce3-8171-a0048af5b8f3/original=true,quality=90/52733151.jpeg"
+    "imageUrl": "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/2da6fc95-ef30-4ce3-8171-a0048af5b8f3/original=true,quality=90/52733151.jpeg"
 }
