@@ -71,6 +71,47 @@
             transform: translateY(-2px);
         }
 
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .button:disabled {
+            background-color: var(--error-color);
+            cursor: not-allowed;
+        }
+
         #image-url-input {
             width: 100%;
             padding: 1rem;
@@ -153,12 +194,14 @@
         }
 
         #displayed-image {
-            width: 100%;
-            height: auto;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: calc(var(--border-radius) - 4px);
-            margin-bottom: 1rem;
+            max-width: 100%;
+            margin-top: 1rem;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        #displayed-image[src] {
+            display: block;
         }
 
         .guess-summary {
@@ -327,7 +370,10 @@
         </header>
 
         <div class="input-container">
-            <input type="text" id="image-url-input" placeholder="Paste image URL here" />
+            <div class="input-group">
+                <input type="text" id="image-url-input" placeholder="Paste image URL here">
+                <button id="process-image-button" class="button">Process Image</button>
+            </div>
             <div id="image-error" class="error-message"></div>
             <div id="api-error" class="error-message"></div>
         </div>

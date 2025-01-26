@@ -1,6 +1,3 @@
-// Import configuration
-import config from './config.js';
-
 // script.js
 // Test mode sentence
 const testSentence = ["BLUE", "FLUFFY", "CAT", "SLEEPING", "PEACEFULLY"];
@@ -276,6 +273,7 @@ function startGame() {
 // Function to set up image input handling (called only once at page load)
 function setupImageInput() {
     const imageUrlInput = document.getElementById('image-url-input');
+    const processButton = document.getElementById('process-image-button');
     const displayedImage = document.getElementById('displayed-image');
     const errorMessage = document.getElementById('image-error');
 
@@ -284,35 +282,61 @@ function setupImageInput() {
     imageUrlInput.parentNode.replaceChild(newImageInput, imageUrlInput);
     const newDisplayedImage = displayedImage.cloneNode(true);
     displayedImage.parentNode.replaceChild(newDisplayedImage, displayedImage);
+    const newProcessButton = processButton.cloneNode(true);
+    processButton.parentNode.replaceChild(newProcessButton, processButton);
 
     // Set up new event listeners
     newImageInput.addEventListener('input', function () {
         const url = newImageInput.value.trim();
         if (url) {
-            newDisplayedImage.src = url;
+            newProcessButton.disabled = false;
+            errorMessage.textContent = ''; // Clear error message when input changes
         } else {
+            newProcessButton.disabled = true;
             newDisplayedImage.src = '';
-            errorMessage.textContent = ''; // Clear error message when input is cleared
+            errorMessage.textContent = '';
         }
     });
 
-    newDisplayedImage.addEventListener('load', function () {
-        if (!isTestMode && newDisplayedImage.src && !newDisplayedImage.src.endsWith('undefined')) {
-            errorMessage.textContent = ''; // Clear error message on successful load
-            // Only generate description if we don't already have one
-            if (sentenceToGuess.length === 0) {
-                getPromptFromImage(newDisplayedImage.src);
+    // Process button click handler
+    newProcessButton.addEventListener('click', async function() {
+        const url = newImageInput.value.trim();
+        if (!url) {
+            errorMessage.textContent = 'Please enter an image URL first.';
+            return;
+        }
+
+        // Try to load the image first
+        newDisplayedImage.src = url;
+        newProcessButton.disabled = true;
+
+        // Wait for image to load or fail
+        try {
+            await new Promise((resolve, reject) => {
+                newDisplayedImage.onload = resolve;
+                newDisplayedImage.onerror = reject;
+            });
+
+            // Image loaded successfully, now process it
+            try {
+                await getPromptFromImage(url);
+                errorMessage.textContent = ''; // Clear error on success
+            } catch (error) {
+                console.error('Error getting prompt:', error);
+                errorMessage.textContent = 'Error processing image. Please try a different URL.';
+                newDisplayedImage.src = ''; // Clear the image on error
             }
+        } catch (error) {
+            console.error('Error loading image:', error);
+            errorMessage.textContent = 'Failed to load image. Please check the URL.';
+            newDisplayedImage.src = ''; // Clear the image on error
+        } finally {
+            newProcessButton.disabled = false;
         }
     });
 
-    newDisplayedImage.addEventListener('error', function (e) {
-        // Only show error if there was actually a URL attempted
-        if (newDisplayedImage.src && !newDisplayedImage.src.endsWith('undefined')) {
-            newDisplayedImage.src = '';
-            errorMessage.textContent = 'Failed to load image. Please check the URL.';
-        }
-    });
+    // Initially disable the process button
+    newProcessButton.disabled = true;
 }
 
 // Function to reset the game
@@ -365,6 +389,8 @@ function getSentence(imageUrl) {
 // Function to get prompt from image using Azure Function
 async function getPromptFromImage(imageUrl) {
     console.log('Getting prompt from image...');
+    const apiError = document.getElementById('api-error');
+    apiError.textContent = ''; // Clear any previous errors
     
     try {
         const response = await fetch('http://localhost:7071/api/DescribeImage', {
@@ -380,6 +406,8 @@ async function getPromptFromImage(imageUrl) {
         }
 
         const data = await response.json();
+        console.log('Received response:', data);
+
         if (data.words && data.words.length > 0) {
             // Set the generated prompt as the sentence to guess
             sentenceToGuess.length = 0; // Clear previous sentence
@@ -389,13 +417,12 @@ async function getPromptFromImage(imageUrl) {
             console.log('Sentence to guess:', sentenceToGuess);
             startGame();
         } else {
-            const errorMessage = document.getElementById('api-error');
-            errorMessage.textContent = 'Error generating prompt from image.';
+            throw new Error('No words received from the API');
         }
     } catch (error) {
         console.error('Error getting prompt from image:', error);
-        const errorMessage = document.getElementById('api-error');
-        errorMessage.textContent = 'Error getting prompt from image.';
+        apiError.textContent = 'Error generating prompt from image. Please try again.';
+        throw error; // Re-throw to be handled by the caller
     }
 }
 
