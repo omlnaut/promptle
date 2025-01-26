@@ -6,15 +6,17 @@ using Promptle.Function.Services;
 var builder = FunctionsApplication.CreateBuilder(args);
 
 // Register OpenAiService and configure HttpClient
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<IOpenAiService, OpenAiService>(client =>
+{
+    var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+});
+
 // Register the service interface with its implementation
 builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 
 builder.ConfigureFunctionsWebApplication();
 
-// Application Insights isn't enabled by default. See https://aka.ms/AAt8mw4.
-// builder.Services
-//     .AddApplicationInsightsTelemetryWorkerService()
-//     .ConfigureFunctionsApplicationInsights();
+var app = builder.Build();
 
-builder.Build().Run();
+app.Run();
