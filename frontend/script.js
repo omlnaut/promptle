@@ -362,53 +362,41 @@ function getSentence(imageUrl) {
     }
 }
 
-// Function to get prompt from image using OpenAI API
-function getPromptFromImage(imageUrl) {
+// Function to get prompt from image using Azure Function
+async function getPromptFromImage(imageUrl) {
     console.log('Getting prompt from image...');
-    const requestData = {
-        model: "gpt-4o",
-        messages: [
-            {
-                role: "user",
-                content: [
-                    { type: "text", text: "Create a precise, seven-word prompt capturing this image's essence, using detailed and nuanced language with minimal common terms" },
-                    { type: "image_url", image_url: { url: imageUrl } }
-                ]
-            }
-        ],
-        max_tokens: 300
-    };
-
-    fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify(requestData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.choices && data.choices[0].message.content) {
-                // Set the generated prompt as the sentence to guess
-                sentenceToGuess.length = 0; // Clear previous sentence
-                const description = data.choices[0].message.content;
-                const words = description.split(' ');
-                words.forEach(word => {
-                    sentenceToGuess.push(word.replace(/[^a-zA-Z]/g, '').toUpperCase());
-                });
-                console.log('Sentence to guess:', sentenceToGuess);
-                startGame();
-            } else {
-                const errorMessage = document.getElementById('api-error');
-                errorMessage.textContent = 'Error generating prompt from image.';
-            }
-        })
-        .catch(error => {
-            console.error('Error getting prompt from image:', error);
-            const errorMessage = document.getElementById('api-error');
-            errorMessage.textContent = 'Error getting prompt from image.';
+    
+    try {
+        const response = await fetch('http://localhost:7071/api/DescribeImage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ imageUrl })
         });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.words && data.words.length > 0) {
+            // Set the generated prompt as the sentence to guess
+            sentenceToGuess.length = 0; // Clear previous sentence
+            data.words.forEach(word => {
+                sentenceToGuess.push(word);
+            });
+            console.log('Sentence to guess:', sentenceToGuess);
+            startGame();
+        } else {
+            const errorMessage = document.getElementById('api-error');
+            errorMessage.textContent = 'Error generating prompt from image.';
+        }
+    } catch (error) {
+        console.error('Error getting prompt from image:', error);
+        const errorMessage = document.getElementById('api-error');
+        errorMessage.textContent = 'Error getting prompt from image.';
+    }
 }
 
 // Initialize the game on page load
