@@ -393,7 +393,7 @@ async function getPromptFromImage(imageUrl) {
     apiError.textContent = ''; // Clear any previous errors
     
     try {
-        const response = await fetch('http://localhost:7071/api/DescribeImage', {
+        const response = await fetch('https://omlnautpromptle.azurewebsites.net/api/DescribeImage', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
