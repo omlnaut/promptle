@@ -30,19 +30,36 @@ public class OpenAiService : IOpenAiService
         return ProcessResponse(response);
     }
 
-    private static OpenAiRequestData CreateRequestData(string imageUrl)
-    {
-        return OpenAiRequestData.FromContents(DefaultModel,
-        [
-            new OpenAiTextContent { Text = DescribeImagePrompt },
-            new OpenAiImageUrlContent { ImageUrl = new OpenAiImage { Url = imageUrl } }
-        ],
-                                              MaxTokens);
-    }
+    private static object CreateRequestData(string imageUrl) =>
+        new
+        {
+            model = "gpt-4o",
+            messages = new[]
+            {
+                new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new
+                        {
+                            type = "text",
+                            text = "Create a precise, seven-word prompt capturing this image's essence, using detailed and nuanced language with minimal common terms"
+                        },
+                        new
+                        {
+                            type = "image_url",
+                            image_url = new { url = imageUrl }
+                        }
+                    }
+                }
+            },
+            max_tokens = 300
+        };
 
 
 
-    private async Task<OpenAiResponse> MakeOpenAiRequest(OpenAiRequestData requestData)
+    private async Task<OpenAiResponse> MakeOpenAiRequest(object requestData)
     {
         var json = JsonSerializer.Serialize(requestData);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
