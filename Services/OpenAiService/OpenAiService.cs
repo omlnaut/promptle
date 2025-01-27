@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using promptle.Services.OpenAiService;
 using Promptle.Function.Models;
 
 namespace Promptle.Function.Services;
