@@ -1,14 +1,10 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using promptle.Services.OpenAiService;
 using Promptle.Function.Models;
 
 namespace Promptle.Function.Services;
-
-public interface IOpenAiService
-{
-    Task<string[]> GetImageDescriptionWords(string imageUrl);
-}
 
 
 public class OpenAiService : IOpenAiService
@@ -16,6 +12,9 @@ public class OpenAiService : IOpenAiService
     private readonly HttpClient _httpClient;
     private readonly ILogger<OpenAiService> _logger;
     private const string OpenAiEndpoint = "https://api.openai.com/v1/chat/completions";
+    private const string DefaultModel = "gpt-4o";
+    private const int MaxTokens = 300;
+    private const string DescribeImagePrompt = "Create a precise, seven-word prompt capturing this image's essence, using detailed and nuanced language with minimal common terms";
 
     public OpenAiService(HttpClient httpClient, ILogger<OpenAiService> logger)
     {
@@ -31,34 +30,19 @@ public class OpenAiService : IOpenAiService
         return ProcessResponse(response);
     }
 
-    private static object CreateRequestData(string imageUrl) =>
-        new
-        {
-            model = "gpt-4o",
-            messages = new[]
-            {
-                new
-                {
-                    role = "user",
-                    content = new object[]
-                    {
-                        new
-                        {
-                            type = "text",
-                            text = "Create a precise, seven-word prompt capturing this image's essence, using detailed and nuanced language with minimal common terms"
-                        },
-                        new
-                        {
-                            type = "image_url",
-                            image_url = new { url = imageUrl }
-                        }
-                    }
-                }
-            },
-            max_tokens = 300
-        };
+    private static OpenAiRequestData CreateRequestData(string imageUrl)
+    {
+        return OpenAiRequestData.FromContents(DefaultModel,
+        [
+            new OpenAiTextContent { Text = DescribeImagePrompt },
+            new OpenAiImageUrlContent { ImageUrl = new OpenAiImage { Url = imageUrl } }
+        ],
+                                              MaxTokens);
+    }
 
-    private async Task<OpenAiResponse> MakeOpenAiRequest(object requestData)
+
+
+    private async Task<OpenAiResponse> MakeOpenAiRequest(OpenAiRequestData requestData)
     {
         var json = JsonSerializer.Serialize(requestData);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
