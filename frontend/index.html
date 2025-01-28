@@ -112,6 +112,10 @@
             cursor: not-allowed;
         }
 
+        .secondary-button {
+            background-color: var(--secondary-color);
+        }
+
         #image-url-input {
             width: 100%;
             padding: 1rem;
@@ -131,28 +135,6 @@
             font-size: 0.875rem;
             margin-top: 0.5rem;
             min-height: 20px;
-        }
-
-        .mode-toggle {
-            background: white;
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 2rem;
-        }
-
-        .mode-toggle label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .mode-toggle input[type="checkbox"] {
-            width: 1.25rem;
-            height: 1.25rem;
-            accent-color: var(--primary-color);
         }
 
         #main-container {
@@ -351,6 +333,104 @@
             transform: translateY(0);
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.2rem;
+            padding: 1rem;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            transition: transform 0.2s ease;
+        }
+
+        .instructions-list li:hover {
+            transform: translateY(-2px);
+        }
+
+        .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            font-weight: 600;
+        }
+
+        .step-text {
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .color-example {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin: 0 4px;
+            vertical-align: middle;
+        }
+
+        .color-green {
+            background-color: var(--correct-color);
+        }
+
+        .color-yellow {
+            background-color: var(--present-color);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
             #main-container {
                 grid-template-columns: 1fr;
@@ -366,23 +446,17 @@
     <div class="container">
         <header class="header">
             <h1>Promptle</h1>
-            <p>Guess the image description, one word at a time!</p>
+            <p>Image Description Guessing Game</p>
+            <button id="how-to-play" class="button secondary-button">How to Play</button>
         </header>
 
         <div class="input-container">
             <div class="input-group">
-                <input type="text" id="image-url-input" placeholder="Paste image URL here">
-                <button id="process-image-button" class="button">Process Image</button>
+                <input type="text" id="image-url-input" placeholder="Enter image URL">
+                <button id="start-button" class="button">Start Game</button>
             </div>
             <div id="image-error" class="error-message"></div>
             <div id="api-error" class="error-message"></div>
-        </div>
-
-        <div class="mode-toggle">
-            <label>
-                <input type="checkbox" id="mode-toggle" />
-                Use Test Mode (Hardcoded Sentence)
-            </label>
         </div>
 
         <div id="main-container">
@@ -401,6 +475,48 @@
         <div class="controls">
             <button id="check-button">Check</button>
             <button id="reset-button">Reset Game</button>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="how-to-play-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>How to Play</h2>
+            <ul class="instructions-list">
+                <li>
+                    <div class="step-number">1</div>
+                    <div class="step-text">
+                        Paste an image URL into the text box and click 'Start Game'
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">2</div>
+                    <div class="step-text">
+                        ChatGPT will generate a description for you to guess
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">3</div>
+                    <div class="step-text">
+                        For each word, you'll see its first and last letter, plus all occurrences of those letters within the word
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">4</div>
+                    <div class="step-text">
+                        Fill in all letters and press Enter on your keyboard to check your guess
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">5</div>
+                    <div class="step-text">
+                        The letters will be colored to show your progress:<br>
+                        <span class="color-example color-green"></span> Green: Correct letter in correct position<br>
+                        <span class="color-example color-yellow"></span> Yellow: Correct letter in wrong position
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
 

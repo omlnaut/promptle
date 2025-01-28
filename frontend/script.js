@@ -1,13 +1,12 @@
 // script.js
 // Test mode sentence
-const testSentence = ["BLUE", "FLUFFY", "CAT", "SLEEPING", "PEACEFULLY"];
+// const testSentence = ["BLUE", "FLUFFY", "CAT", "SLEEPING", "PEACEFULLY"];
 
 // Current sentence to guess
 let sentenceToGuess = [];
 let currentWordIndex = 0;
 let currentGuessRow;
 let gameOver = false;
-let isTestMode = false;
 let guessHistory = [];  // Array to store guess results for each word
 
 // Function to display placeholders for each word
@@ -258,11 +257,6 @@ function startGame() {
     currentWordIndex = 0;
     gameOver = false;
 
-    // Initialize with test sentence if in test mode
-    if (isTestMode && sentenceToGuess.length === 0) {
-        sentenceToGuess = [...testSentence];
-    }
-
     // Only proceed if we have a sentence to guess
     if (sentenceToGuess.length > 0) {
         displaySentencePlaceholders();
@@ -273,7 +267,7 @@ function startGame() {
 // Function to set up image input handling (called only once at page load)
 function setupImageInput() {
     const imageUrlInput = document.getElementById('image-url-input');
-    const processButton = document.getElementById('process-image-button');
+    const processButton = document.getElementById('start-button');
     const displayedImage = document.getElementById('displayed-image');
     const errorMessage = document.getElementById('image-error');
 
@@ -361,29 +355,24 @@ function resetGame() {
     // Clear the current sentence
     sentenceToGuess = [];
 
-    // Initialize with test sentence if in test mode
-    if (isTestMode) {
-        sentenceToGuess = [...testSentence];
-    }
-
     startGame();
 }
 
-// Function to handle mode toggle
-function handleModeToggle() {
-    const modeToggle = document.getElementById('mode-toggle');
-    isTestMode = modeToggle.checked;
-    resetGame();
+// Function to get the sentence based on current mode
+async function getSentence(imageUrl) {
+    await getPromptFromImage(imageUrl);
 }
 
-// Function to get the sentence based on current mode
-function getSentence(imageUrl) {
-    if (isTestMode) {
-        sentenceToGuess = [...testSentence];
-        startGame();
-    } else {
-        getPromptFromImage(imageUrl);
-    }
+// Function to get the backend URL based on environment
+function getBackendUrl() {
+    // Check if we're running locally
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.hostname === '';
+    
+    return isLocalhost
+        ? 'http://localhost:7071/api/DescribeImage'
+        : 'https://omlnautpromptle.azurewebsites.net/api/DescribeImage';
 }
 
 // Function to get prompt from image using Azure Function
@@ -393,7 +382,10 @@ async function getPromptFromImage(imageUrl) {
     apiError.textContent = ''; // Clear any previous errors
     
     try {
-        const response = await fetch('https://omlnautpromptle.azurewebsites.net/api/DescribeImage', {
+        const backendUrl = getBackendUrl();
+        console.log('Using backend URL:', backendUrl);
+        
+        const response = await fetch(backendUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -428,15 +420,6 @@ async function getPromptFromImage(imageUrl) {
 
 // Initialize the game on page load
 window.onload = function () {
-    // Set initial mode from checkbox state
-    const modeToggle = document.getElementById('mode-toggle');
-    isTestMode = modeToggle.checked;
-    
-    // Initialize sentence if in test mode
-    if (isTestMode) {
-        sentenceToGuess = [...testSentence];
-    }
-    
     // Clear any existing image and error message
     const displayedImage = document.getElementById('displayed-image');
     const errorMessage = document.getElementById('image-error');
@@ -452,4 +435,22 @@ window.onload = function () {
 // Event listeners
 document.getElementById('check-button').addEventListener('click', checkGuess);
 document.getElementById('reset-button').addEventListener('click', resetGame);
-document.getElementById('mode-toggle').addEventListener('change', handleModeToggle);
+
+// Modal functionality
+const modal = document.getElementById('how-to-play-modal');
+const btn = document.getElementById('how-to-play');
+const span = document.getElementsByClassName('close')[0];
+
+btn.onclick = function() {
+    modal.style.display = 'block';
+}
+
+span.onclick = function() {
+    modal.style.display = 'none';
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
