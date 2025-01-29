@@ -94,7 +94,7 @@ function createGuessRow(wordIndex) {
     }
 
     // Insert the guess row before the word placeholder
-    wordContainer.insertBefore(guessRow, wordContainer.children[wordContainer.children.length - 1]);
+    wordContainer.insertBefore(guessRow, wordContainer.children[0]);
 
     currentGuessRow = guessRow;
 
@@ -381,6 +381,22 @@ async function getPromptFromImage(imageUrl) {
     const apiError = document.getElementById('api-error');
     apiError.textContent = ''; // Clear any previous errors
     
+    const loadingContainer = document.createElement('div');
+    loadingContainer.id = 'loading-message';
+    loadingContainer.className = 'loading-container';
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'loading-spinner';
+    
+    const loadingText = document.createElement('div');
+    loadingText.className = 'loading-text';
+    loadingText.textContent = 'Generating image description...';
+    
+    loadingContainer.appendChild(spinner);
+    loadingContainer.appendChild(loadingText);
+    
+    document.getElementById('api-error').parentNode.insertBefore(loadingContainer, apiError);
+    
     try {
         const backendUrl = getBackendUrl();
         console.log('Using backend URL:', backendUrl);
@@ -415,6 +431,12 @@ async function getPromptFromImage(imageUrl) {
         console.error('Error getting prompt from image:', error);
         apiError.textContent = 'Error generating prompt from image. Please try again.';
         throw error; // Re-throw to be handled by the caller
+    } finally {
+        // Remove loading message
+        const loadingMessage = document.getElementById('loading-message');
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
     }
 }
 
