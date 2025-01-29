@@ -94,7 +94,7 @@ function createGuessRow(wordIndex) {
     }
 
     // Insert the guess row before the word placeholder
-    wordContainer.insertBefore(guessRow, wordContainer.children[0]);
+    wordContainer.insertBefore(guessRow, wordContainer.children[wordContainer.children.length - 1]);
 
     currentGuessRow = guessRow;
 
