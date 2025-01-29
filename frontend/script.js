@@ -164,7 +164,7 @@ function checkGuess() {
             wordArray[wordArray.indexOf(guessArray[index])] = null;
             guessArray[index] = null;
             guessResult[index] = 'present';
-        } else if (input.style.backgroundColor !== 'rgb(26, 127, 55)') {  // If not green
+        } else if (input.classList.contains('correct') === false) {  // If not green
             updateLetterColor(input, 'absent');
             guessResult[index] = 'absent';
         }
@@ -193,8 +193,6 @@ function checkGuess() {
         } else {
             // All words guessed - show summary
             displayGuessSummary();
-            const successMessage = document.getElementById('success-message');
-            successMessage.textContent = 'Congratulations! You guessed the entire sentence!';
             gameOver = true;
         }
     } else {
@@ -205,19 +203,10 @@ function checkGuess() {
 
 // Function to update letter color
 function updateLetterColor(input, status) {
-    switch (status) {
-        case 'correct':
-            input.style.backgroundColor = '#1a7f37';  // Darker green
-            break;
-        case 'present':
-            input.style.backgroundColor = '#d4a72c';  // Orange-yellow
-            break;
-        case 'absent':
-            input.style.backgroundColor = '#666666';  // Gray
-            break;
-        default:
-            input.style.backgroundColor = 'white';
-    }
+    // Remove any existing status classes
+    input.classList.remove('correct', 'present', 'absent');
+    // Add the new status class
+    input.classList.add(status);
 }
 
 // Function to display the guess summary
@@ -236,7 +225,7 @@ function displayGuessSummary() {
             // Create colored boxes for each letter
             guess.forEach(result => {
                 const letter = document.createElement('div');
-                letter.classList.add('summary-letter', `summary-${result}`);
+                letter.classList.add('summary-letter', result);
                 guessRow.appendChild(letter);
             });
 
@@ -262,75 +251,6 @@ function startGame() {
         displaySentencePlaceholders();
         createGuessRow(currentWordIndex);
     }
-}
-
-// Function to set up image input handling (called only once at page load)
-function setupImageInput() {
-    const imageUrlInput = document.getElementById('image-url-input');
-    const processButton = document.getElementById('start-button');
-    const displayedImage = document.getElementById('displayed-image');
-    const errorMessage = document.getElementById('image-error');
-
-    // Remove any existing event listeners
-    const newImageInput = imageUrlInput.cloneNode(true);
-    imageUrlInput.parentNode.replaceChild(newImageInput, imageUrlInput);
-    const newDisplayedImage = displayedImage.cloneNode(true);
-    displayedImage.parentNode.replaceChild(newDisplayedImage, displayedImage);
-    const newProcessButton = processButton.cloneNode(true);
-    processButton.parentNode.replaceChild(newProcessButton, processButton);
-
-    // Set up new event listeners
-    newImageInput.addEventListener('input', function () {
-        const url = newImageInput.value.trim();
-        if (url) {
-            newProcessButton.disabled = false;
-            errorMessage.textContent = ''; // Clear error message when input changes
-        } else {
-            newProcessButton.disabled = true;
-            newDisplayedImage.src = '';
-            errorMessage.textContent = '';
-        }
-    });
-
-    // Process button click handler
-    newProcessButton.addEventListener('click', async function() {
-        const url = newImageInput.value.trim();
-        if (!url) {
-            errorMessage.textContent = 'Please enter an image URL first.';
-            return;
-        }
-
-        // Try to load the image first
-        newDisplayedImage.src = url;
-        newProcessButton.disabled = true;
-
-        // Wait for image to load or fail
-        try {
-            await new Promise((resolve, reject) => {
-                newDisplayedImage.onload = resolve;
-                newDisplayedImage.onerror = reject;
-            });
-
-            // Image loaded successfully, now process it
-            try {
-                await getPromptFromImage(url);
-                errorMessage.textContent = ''; // Clear error on success
-            } catch (error) {
-                console.error('Error getting prompt:', error);
-                errorMessage.textContent = 'Error processing image. Please try a different URL.';
-                newDisplayedImage.src = ''; // Clear the image on error
-            }
-        } catch (error) {
-            console.error('Error loading image:', error);
-            errorMessage.textContent = 'Failed to load image. Please check the URL.';
-            newDisplayedImage.src = ''; // Clear the image on error
-        } finally {
-            newProcessButton.disabled = false;
-        }
-    });
-
-    // Initially disable the process button
-    newProcessButton.disabled = true;
 }
 
 // Function to reset the game
@@ -438,6 +358,75 @@ async function getPromptFromImage(imageUrl) {
             loadingMessage.remove();
         }
     }
+}
+
+// Function to set up image input handling (called only once at page load)
+function setupImageInput() {
+    const imageUrlInput = document.getElementById('image-url-input');
+    const processButton = document.getElementById('start-button');
+    const displayedImage = document.getElementById('displayed-image');
+    const errorMessage = document.getElementById('image-error');
+
+    // Remove any existing event listeners
+    const newImageInput = imageUrlInput.cloneNode(true);
+    imageUrlInput.parentNode.replaceChild(newImageInput, imageUrlInput);
+    const newDisplayedImage = displayedImage.cloneNode(true);
+    displayedImage.parentNode.replaceChild(newDisplayedImage, displayedImage);
+    const newProcessButton = processButton.cloneNode(true);
+    processButton.parentNode.replaceChild(newProcessButton, processButton);
+
+    // Set up new event listeners
+    newImageInput.addEventListener('input', function () {
+        const url = newImageInput.value.trim();
+        if (url) {
+            newProcessButton.disabled = false;
+            errorMessage.textContent = ''; // Clear error message when input changes
+        } else {
+            newProcessButton.disabled = true;
+            newDisplayedImage.src = '';
+            errorMessage.textContent = '';
+        }
+    });
+
+    // Process button click handler
+    newProcessButton.addEventListener('click', async function() {
+        const url = newImageInput.value.trim();
+        if (!url) {
+            errorMessage.textContent = 'Please enter an image URL first.';
+            return;
+        }
+
+        // Try to load the image first
+        newDisplayedImage.src = url;
+        newProcessButton.disabled = true;
+
+        // Wait for image to load or fail
+        try {
+            await new Promise((resolve, reject) => {
+                newDisplayedImage.onload = resolve;
+                newDisplayedImage.onerror = reject;
+            });
+
+            // Image loaded successfully, now process it
+            try {
+                await getPromptFromImage(url);
+                errorMessage.textContent = ''; // Clear error on success
+            } catch (error) {
+                console.error('Error getting prompt:', error);
+                errorMessage.textContent = 'Error processing image. Please try a different URL.';
+                newDisplayedImage.src = ''; // Clear the image on error
+            }
+        } catch (error) {
+            console.error('Error loading image:', error);
+            errorMessage.textContent = 'Failed to load image. Please check the URL.';
+            newDisplayedImage.src = ''; // Clear the image on error
+        } finally {
+            newProcessButton.disabled = false;
+        }
+    });
+
+    // Initially disable the process button
+    newProcessButton.disabled = true;
 }
 
 // Initialize the game on page load

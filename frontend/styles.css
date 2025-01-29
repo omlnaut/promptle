@@ -205,14 +205,21 @@ body {
 
 .summary-letter.correct {
     background-color: var(--correct-color);
+    background-image: linear-gradient(45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%),
+                    linear-gradient(-45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%);
+    background-size: 10px 10px;
 }
 
 .summary-letter.present {
     background-color: var(--present-color);
+    background-image: radial-gradient(circle, #ffffff22 2px, transparent 2px);
+    background-size: 8px 8px;
 }
 
 .summary-letter.absent {
     background-color: var(--absent-color);
+    background-image: linear-gradient(45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%);
+    background-size: 8px 8px;
 }
 
 #game-container {
@@ -228,51 +235,59 @@ body {
 
 .word-placeholder {
     font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-color);
+    letter-spacing: 4px;
+    color: #64748b;
     margin-bottom: 0.5rem;
-    letter-spacing: 2px;
 }
 
 .guess-row {
     display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .letter-input {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #e2e8f0;
-    border-radius: 4px;
-    font-size: 1.25rem;
-    font-weight: 600;
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
     text-align: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s ease;
+    position: relative;
     text-transform: uppercase;
-    transition: border-color 0.2s ease;
 }
 
 .letter-input:focus {
     outline: none;
     border-color: var(--primary-color);
+    transform: scale(1.05);
 }
 
 .letter-input.correct {
     background-color: var(--correct-color);
-    border-color: var(--correct-color);
     color: white;
+    border-color: var(--correct-color);
+    background-image: linear-gradient(45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%),
+                    linear-gradient(-45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%);
+    background-size: 10px 10px;
 }
 
 .letter-input.present {
     background-color: var(--present-color);
-    border-color: var(--present-color);
     color: white;
+    border-color: var(--present-color);
+    background-image: radial-gradient(circle, #ffffff22 2px, transparent 2px);
+    background-size: 8px 8px;
 }
 
 .letter-input.absent {
     background-color: var(--absent-color);
-    border-color: var(--absent-color);
     color: white;
+    border-color: var(--absent-color);
+    background-image: linear-gradient(45deg, transparent 45%, #ffffff22 45%, #ffffff22 55%, transparent 55%);
+    background-size: 8px 8px;
 }
 
 .button-container {
