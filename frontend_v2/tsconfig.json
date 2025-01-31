@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ES2020", // or your preferred target
+        "module": "ES2020", // or "commonjs", depending on your setup
+        "strict": true, // enable strict type-checking
+        "outDir": "dist", // output directory for compiled JS
+        "esModuleInterop": true // makes imports more ergonomic
+    },
+    "include": [
+        "script.ts"
+    ]
+}
