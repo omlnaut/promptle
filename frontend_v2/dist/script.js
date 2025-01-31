@@ -4,6 +4,7 @@ function setImage() {
 }
 function createInput() {
     const input = document.createElement('input');
+    input.classList.add('letter-input');
     input.maxLength = 1;
     // Input event listener
     input.addEventListener('input', function () {
