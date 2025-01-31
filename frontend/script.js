@@ -211,6 +211,7 @@ function updateLetterColor(input, status) {
 
 // Function to display the guess summary
 function displayGuessSummary() {
+    document.body.classList.add('game-over');
     const summaryContainer = document.getElementById('guess-summary');
     summaryContainer.innerHTML = '';  // Clear existing content
     summaryContainer.style.display = 'block';  // Make visible
@@ -241,6 +242,22 @@ function displayGuessSummary() {
     });
 }
 
+// Function to handle image load and set orientation
+function handleImageLoad() {
+    const image = document.getElementById('displayed-image');
+    const container = document.getElementById('image-container');
+    
+    // Reset classes
+    container.classList.remove('vertical', 'horizontal');
+    
+    // Compare aspect ratio
+    if (image.naturalHeight > image.naturalWidth) {
+        container.classList.add('vertical');
+    } else {
+        container.classList.add('horizontal');
+    }
+}
+
 // Function to start the game
 function startGame() {
     currentWordIndex = 0;
@@ -248,6 +265,13 @@ function startGame() {
 
     // Only proceed if we have a sentence to guess
     if (sentenceToGuess.length > 0) {
+        document.body.classList.add('game-active');
+        document.body.classList.remove('game-over');
+        
+        // Set up image load handler
+        const image = document.getElementById('displayed-image');
+        image.addEventListener('load', handleImageLoad);
+        
         displaySentencePlaceholders();
         createGuessRow(currentWordIndex);
     }
@@ -255,27 +279,37 @@ function startGame() {
 
 // Function to reset the game
 function resetGame() {
-    // Clear the image and error message
-    const displayedImage = document.getElementById('displayed-image');
-    const errorMessage = document.getElementById('image-error');
-    const guessSummary = document.getElementById('guess-summary');
-    
-    displayedImage.src = '';
-    errorMessage.textContent = '';
-    guessSummary.style.display = 'none';
-    guessSummary.innerHTML = '';
-
-    // Reset guess history
+    document.body.classList.remove('game-active', 'game-over');
+    const image = document.getElementById('displayed-image');
+    image.removeEventListener('load', handleImageLoad);
+    const container = document.getElementById('image-container');
+    container.classList.remove('vertical', 'horizontal');
+    currentWordIndex = 0;
+    gameOver = false;
+    sentenceToGuess = [];
     guessHistory = [];
 
-    // Clear the image URL input field
+    // Clear the image
+    image.src = '';
+    image.style.display = 'none';
+
+    // Clear the game container
+    const gameContainer = document.getElementById('game-container');
+    gameContainer.innerHTML = '';
+
+    // Clear the guess summary
+    const guessSummary = document.getElementById('guess-summary');
+    guessSummary.innerHTML = '';
+
+    // Clear any error messages
+    document.getElementById('image-error').textContent = '';
+    document.getElementById('api-error').textContent = '';
+    document.getElementById('guess-error').textContent = '';
+
+    // Clear and enable the image URL input
     const imageUrlInput = document.getElementById('image-url-input');
     imageUrlInput.value = '';
-
-    // Clear the current sentence
-    sentenceToGuess = [];
-
-    startGame();
+    imageUrlInput.disabled = false;
 }
 
 // Function to get the sentence based on current mode

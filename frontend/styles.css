@@ -28,6 +28,123 @@ body {
     padding: 2rem;
 }
 
+body.game-active {
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body.game-active .container {
+    max-width: none;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+body.game-active .header,
+body.game-active .input-container {
+    display: none;
+}
+
+body.game-active #main-container {
+    flex: 1;
+    height: calc(100vh - 80px);
+    margin: 0;
+    padding: 1rem;
+    gap: 1rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+body.game-active #image-container {
+    height: 100%;
+    position: relative;
+    display: flex;
+    padding: 0;
+    overflow: hidden;
+    background: none;
+    box-shadow: none;
+}
+
+body.game-active #image-container.vertical {
+    width: auto;
+}
+
+body.game-active #image-container.horizontal {
+    width: calc(100% - 400px); /* Space for game container */
+}
+
+body.game-active #displayed-image {
+    height: 100%;
+    width: auto;
+    max-width: none;
+    margin: 0;
+}
+
+body.game-active #image-container.vertical #displayed-image {
+    height: 100%;
+    width: auto;
+}
+
+body.game-active #image-container.horizontal #displayed-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+}
+
+body.game-active .guess-summary {
+    display: none;
+    min-width: 200px;
+    max-width: 300px;
+    height: 100%;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow-y: auto;
+}
+
+body.game-active.game-over .guess-summary {
+    display: block;
+}
+
+body.game-active.game-over #image-container.horizontal {
+    width: auto; /* Let image take natural width */
+}
+
+body.game-active #game-container {
+    flex: 1;
+    min-width: 350px;
+    height: 100%;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+body.game-active #game-container .word-container {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+body.game-active .controls {
+    height: 80px;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -188,7 +305,7 @@ body {
 .summary-word {
     display: flex;
     gap: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 0.5rem;
 }
 
 .summary-letter {
