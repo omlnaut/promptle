@@ -1,8 +1,7 @@
+import { createGameRow, checkWord } from './gameUtils';
 
 function setImage() {
-
     imageDisplay.src = imageInput.value;
-
 }
 
 function createInput() {
