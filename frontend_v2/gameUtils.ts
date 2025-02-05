@@ -26,7 +26,7 @@ export function compareWords(input: string, target: string): LetterState[] {
     });
 }
 
-export function GetInitialWordFiltered(target: string): string {
+export function FilterInitialWord(target: string): string {
     return target
         .split('')
         .map((char) => {
@@ -35,4 +35,17 @@ export function GetInitialWordFiltered(target: string): string {
             return ' ';
         })
         .join('');
+}
+
+export function CreateGuessStarter(previousGuess: string, target: string): string {
+    let starter = '';
+    for (let i = 0; i < previousGuess.length; i++) {
+        if (previousGuess[i] === target[i]) {
+            starter += previousGuess[i];
+        }
+        else {
+            starter += ' ';
+        }
+    }
+    return starter;
 }

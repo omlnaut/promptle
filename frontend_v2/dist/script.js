@@ -1,4 +1,4 @@
-import { compareWords, LetterState } from './gameUtils.js';
+import { compareWords, CreateGuessStarter, FilterInitialWord, LetterState } from './gameUtils.js';
 function setImage() {
     imageDisplay.src = imageInput.value;
 }
@@ -32,6 +32,9 @@ function createInput() {
             const currentRow = getCurrentRow();
             const values = Array.from(currentRow.children).map(input => input.value);
             const text = values.join('');
+            if (text.length !== testWord.length) {
+                return;
+            }
             console.log(text);
             const result = compareWords(text, testWord);
             console.log(result);
@@ -48,6 +51,10 @@ function createInput() {
                 }
             }
             createRow(testWord.length);
+            const GuessStarter = CreateGuessStarter(text, testWord);
+            const newRow = getCurrentRow();
+            setRowText(newRow, GuessStarter);
+            setFocusToFirstEmtpyInput(newRow);
         }
     });
     return input;
@@ -59,8 +66,6 @@ function createRow(length) {
     }
     gameContainer.insertBefore(rowDiv, gameContainer.firstChild);
     ;
-    const newRowFirstChild = rowDiv.firstChild;
-    newRowFirstChild.focus();
 }
 function setRowText(row, text) {
     for (let i = 0; i < row.children.length; i++) {
@@ -69,10 +74,22 @@ function setRowText(row, text) {
         child.value = testWordLetter;
     }
 }
+function setFocusToFirstEmtpyInput(row) {
+    for (let i = 0; i < row.children.length; i++) {
+        const child = row.children[i];
+        console.log(child.value);
+        if (!child.value) {
+            child.focus();
+            break;
+        }
+    }
+}
 window.onload = function () {
     createRow(testWord.length);
     const currentRow = getCurrentRow();
-    setRowText(currentRow, testWord);
+    const filteredWord = FilterInitialWord(testWord);
+    setRowText(currentRow, filteredWord);
+    setFocusToFirstEmtpyInput(currentRow);
 };
 const imageInput = document.getElementById('image-url-input');
 const imageDisplay = document.getElementById('image-large');

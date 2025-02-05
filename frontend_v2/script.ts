@@ -1,4 +1,4 @@
-import { compareWords, LetterState } from './gameUtils.js';
+import { compareWords, CreateGuessStarter, FilterInitialWord, LetterState } from './gameUtils.js';
 
 function setImage() {
     imageDisplay.src = imageInput.value;
@@ -37,6 +37,9 @@ function createInput() {
             const currentRow = getCurrentRow();
             const values = Array.from(currentRow.children).map(input => (input as HTMLInputElement).value);
             const text = values.join('');
+            if (text.length !== testWord.length) {
+                return;
+            }
             console.log(text);
 
             const result = compareWords(text, testWord);
@@ -53,6 +56,10 @@ function createInput() {
                 }
             }
             createRow(testWord.length);
+            const GuessStarter = CreateGuessStarter(text, testWord);
+            const newRow = getCurrentRow();
+            setRowText(newRow, GuessStarter);
+            setFocusToFirstEmtpyInput(newRow);
         }
     });
     return input;
@@ -64,8 +71,6 @@ function createRow(length: number) {
         rowDiv.appendChild(createInput());
     }
     gameContainer.insertBefore(rowDiv, gameContainer.firstChild);;
-    const newRowFirstChild = rowDiv.firstChild as HTMLInputElement;
-    newRowFirstChild.focus();
 
 }
 
@@ -78,10 +83,23 @@ function setRowText(row: HTMLDivElement, text: string) {
     }
 }
 
+function setFocusToFirstEmtpyInput(row: HTMLDivElement) {
+    for (let i = 0; i < row.children.length; i++) {
+        const child = row.children[i] as HTMLInputElement;
+        console.log(child.value);
+        if (!child.value) {
+            child.focus();
+            break;
+        }
+    }
+}
+
 window.onload = function () {
     createRow(testWord.length);
     const currentRow = getCurrentRow();
-    setRowText(currentRow, testWord);
+    const filteredWord = FilterInitialWord(testWord);
+    setRowText(currentRow, filteredWord);
+    setFocusToFirstEmtpyInput(currentRow);
 
 }
 

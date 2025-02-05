@@ -1,4 +1,4 @@
-import { compareWords, GetInitialWordFiltered, LetterState } from './gameUtils';
+import { compareWords, CreateGuessStarter, FilterInitialWord, LetterState } from './gameUtils';
 
 describe('compareWords', () => {
     test('returns empty array for different length strings', () => {
@@ -58,19 +58,25 @@ describe('compareWords', () => {
 
 describe('GetInitialWordFiltered', () => {
     test("returns an empty string for an empty string", () => {
-        expect(GetInitialWordFiltered('')).toEqual('');
+        expect(FilterInitialWord('')).toEqual('');
     });
     test("first and last letters different, filtered only contains those letters", () => {
-        expect(GetInitialWordFiltered('ABCD')).toEqual('A  D');
+        expect(FilterInitialWord('ABCD')).toEqual('A  D');
     });
     test("first and last letters same, filtered only contains those letters", () => {
-        expect(GetInitialWordFiltered('ABCA')).toEqual('A  A');
+        expect(FilterInitialWord('ABCA')).toEqual('A  A');
     });
     test("Only one letter, all gets revealed", () => {
-        expect(GetInitialWordFiltered('AAAA')).toEqual('AAAA');
+        expect(FilterInitialWord('AAAA')).toEqual('AAAA');
     });
     test("Only two letters, all gets revealed", () => {
-        expect(GetInitialWordFiltered('ABAB')).toEqual('ABAB');
+        expect(FilterInitialWord('ABAB')).toEqual('ABAB');
     });
 }
 );
+
+describe('CreateGuessStarter', () => {
+    test("Some letters correct, only contains those letters", () => {
+        expect(CreateGuessStarter('ABCD', 'ABBD')).toEqual('AB D')
+    })
+});
