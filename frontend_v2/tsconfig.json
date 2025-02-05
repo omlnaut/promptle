@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "skipLibCheck": true,
         "target": "ES2020", // or your preferred target
         "module": "ES2020", // or "commonjs", depending on your setup
         "strict": true, // enable strict type-checking

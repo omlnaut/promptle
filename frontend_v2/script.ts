@@ -1,14 +1,20 @@
-import { createGameRow, checkWord } from './gameUtils';
+import { compareWords, LetterState } from './gameUtils.js';
 
 function setImage() {
     imageDisplay.src = imageInput.value;
 }
 
+function getCurrentRow(): HTMLDivElement {
+    const currentRow = gameContainer.firstElementChild as HTMLDivElement;
+    return currentRow;
+}
+
 function createInput() {
     const input = document.createElement('input');
+    input.classList.add('letter-input');
     input.maxLength = 1;
 
-    // Input event listener
+    // Event listener
     input.addEventListener('input', function () {
         this.value = this.value.toUpperCase();
 
@@ -27,6 +33,27 @@ function createInput() {
                 this.previousElementSibling.focus();
             }
         }
+        else if (event.key === 'Enter') {
+            const currentRow = getCurrentRow();
+            const values = Array.from(currentRow.children).map(input => (input as HTMLInputElement).value);
+            const text = values.join('');
+            console.log(text);
+
+            const result = compareWords(text, testWord);
+            console.log(result);
+
+            for (let i = 0; i < result.length; i++) {
+                const child = currentRow.children[i] as HTMLInputElement;
+                if (result[i] === LetterState.Correct) {
+                    child.classList.add('correct');
+                } else if (result[i] === LetterState.Present) {
+                    child.classList.add('present');
+                } else {
+                    child.classList.add('absent');
+                }
+            }
+            createRow(testWord.length);
+        }
     });
     return input;
 }
@@ -36,7 +63,9 @@ function createRow(length: number) {
     for (let i = 0; i < length; i++) {
         rowDiv.appendChild(createInput());
     }
-    gameContainer.appendChild(rowDiv);;
+    gameContainer.insertBefore(rowDiv, gameContainer.firstChild);;
+    const newRowFirstChild = rowDiv.firstChild as HTMLInputElement;
+    newRowFirstChild.focus();
 
 }
 
@@ -51,7 +80,7 @@ function setRowText(row: HTMLDivElement, text: string) {
 
 window.onload = function () {
     createRow(testWord.length);
-    const currentRow = gameContainer.children[gameContainer.children.length - 1] as HTMLDivElement;
+    const currentRow = getCurrentRow();
     setRowText(currentRow, testWord);
 
 }
@@ -61,6 +90,6 @@ const imageDisplay = document.getElementById('image-large')! as HTMLImageElement
 const startButton = document.getElementById('start-button')! as HTMLButtonElement;
 const gameContainer = document.getElementById('game-container')! as HTMLDivElement;
 
-const testWord = "TRE   HET";
+const testWord = "TREBUCHET";
 
 startButton.addEventListener('click', setImage);

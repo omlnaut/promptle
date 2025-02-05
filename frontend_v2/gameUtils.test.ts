@@ -1,4 +1,4 @@
-import { compareWords, LetterState } from './gameUtils';
+import { compareWords, GetInitialWordFiltered, LetterState } from './gameUtils';
 
 describe('compareWords', () => {
     test('returns empty array for different length strings', () => {
@@ -20,8 +20,8 @@ describe('compareWords', () => {
             LetterState.Correct,
             LetterState.Correct,
             LetterState.Correct,
-            LetterState.Present,
-            LetterState.Absent
+            LetterState.Absent,
+            LetterState.Present
         ]);
     });
 
@@ -48,10 +48,29 @@ describe('compareWords', () => {
     test('handles repeated letters in input', () => {
         expect(compareWords('TEETH', 'TENET')).toEqual([
             LetterState.Correct,
+            LetterState.Correct,
             LetterState.Present,
-            LetterState.Absent,
             LetterState.Present,
             LetterState.Absent
         ]);
     });
 });
+
+describe('GetInitialWordFiltered', () => {
+    test("returns an empty string for an empty string", () => {
+        expect(GetInitialWordFiltered('')).toEqual('');
+    });
+    test("first and last letters different, filtered only contains those letters", () => {
+        expect(GetInitialWordFiltered('ABCD')).toEqual('A  D');
+    });
+    test("first and last letters same, filtered only contains those letters", () => {
+        expect(GetInitialWordFiltered('ABCA')).toEqual('A  A');
+    });
+    test("Only one letter, all gets revealed", () => {
+        expect(GetInitialWordFiltered('AAAA')).toEqual('AAAA');
+    });
+    test("Only two letters, all gets revealed", () => {
+        expect(GetInitialWordFiltered('ABAB')).toEqual('ABAB');
+    });
+}
+);

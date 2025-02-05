@@ -6,3 +6,18 @@
     border: 2px solid #e2e8f0;
     border-radius: 8px;
 }
+
+.correct {
+    background-color: green;
+    color: white;
+}
+
+.present {
+    background-color: yellow;
+    color: black;
+}
+
+.absent {
+    background-color: grey;
+    color: white;
+}
