@@ -1,4 +1,4 @@
-import { compareWords, CreateGuessStarter, LetterState } from "./gameUtils";
+import { compareWords, CreateGuessStarter, LetterState } from "./gameUtils.js";
 
 export function getCurrentRow(gameContainer: HTMLDivElement, currentWordIndex: number): HTMLDivElement {
     const currentRowContainer = getCurrentRowContainer(gameContainer, currentWordIndex);
@@ -31,8 +31,11 @@ export function setFocusToFirstEmtpyInput(row: HTMLDivElement) {
     }
 }
 
-function createInput(getCurrentWord: () => string,
-    gameContainer: HTMLDivElement, currentWordIndex: number, maxWords: number) {
+export function createInput(getCurrentWord: () => string,
+    increaseCurrentWordIndexCallback: () => void,
+    getCurrentWordIndex: () => number,
+    gameContainer: HTMLDivElement,
+    maxWords: number) {
     const input = document.createElement('input');
     input.classList.add('letter-input');
     input.maxLength = 1;
@@ -58,7 +61,7 @@ function createInput(getCurrentWord: () => string,
         }
         else if (event.key === 'Enter') {
             const currentWord = getCurrentWord();
-            const currentRow = getCurrentRow(gameContainer, currentWordIndex);
+            const currentRow = getCurrentRow(gameContainer, getCurrentWordIndex());
             const values = Array.from(currentRow.children).map(input => (input as HTMLInputElement).value);
             const text = values.join('');
 
@@ -84,20 +87,21 @@ function createInput(getCurrentWord: () => string,
                 }
             }
             if (guessCorrect) {
-                if (currentWordIndex === maxWords - 1) {
+                if (getCurrentWordIndex() === maxWords - 1) {
                     alert('You win!');
                 }
-                currentWordIndex++;
-                const currentRow = getCurrentRow(gameContainer, currentWordIndex);
+                increaseCurrentWordIndexCallback();
+
+                const currentRow = getCurrentRow(gameContainer, getCurrentWordIndex());
                 setFocusToFirstEmtpyInput(currentRow);
                 return;
             }
-            const newInputs = Array.from({ length: currentWord.length }, () => createInput(getCurrentWord, gameContainer, currentWordIndex, maxWords));
+            const newInputs = Array.from({ length: currentWord.length }, () => createInput(getCurrentWord, increaseCurrentWordIndexCallback, getCurrentWordIndex, gameContainer, maxWords));
             const newRow = createRow(newInputs);
             const GuessStarter = CreateGuessStarter(text, currentWord);
             setRowText(newRow, GuessStarter);
 
-            const currentRowContainer = getCurrentRowContainer(gameContainer, currentWordIndex);
+            const currentRowContainer = getCurrentRowContainer(gameContainer, getCurrentWordIndex());
             currentRowContainer.insertBefore(newRow, currentRowContainer.firstChild);
             setFocusToFirstEmtpyInput(newRow);
         }
@@ -106,9 +110,9 @@ function createInput(getCurrentWord: () => string,
 }
 
 
-function createRow(inputs: HTMLInputElement[]): HTMLDivElement {
+export function createRow(inputs: HTMLInputElement[]): HTMLDivElement {
     const rowDiv = document.createElement('div')
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < inputs.length; i++) {
         rowDiv.appendChild(inputs[i]);
     }
     return rowDiv;
