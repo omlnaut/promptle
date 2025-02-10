@@ -1,14 +1,7 @@
 import { compareWords, CreateGuessStarter, FilterInitialWord, LetterState } from './gameUtils.js';
+import { getCurrentRow, getCurrentRowContainer, setFocusToFirstEmtpyInput, setRowText } from './Rows.js';
 function setImage() {
     imageDisplay.src = imageInput.value;
-}
-function getCurrentRow() {
-    const currentRowContainer = getCurrentRowContainer();
-    const currentRow = currentRowContainer.firstElementChild;
-    return currentRow;
-}
-function getCurrentRowContainer() {
-    return gameContainer.children[currentWordIndex];
 }
 function getCurrentWord() {
     return words[currentWordIndex];
@@ -37,7 +30,7 @@ function createInput() {
         }
         else if (event.key === 'Enter') {
             const currentWord = getCurrentWord();
-            const currentRow = getCurrentRow();
+            const currentRow = getCurrentRow(gameContainer, currentWordIndex);
             const values = Array.from(currentRow.children).map(input => input.value);
             const text = values.join('');
             if (text.length !== currentWord.length) {
@@ -66,14 +59,14 @@ function createInput() {
                     alert('You win!');
                 }
                 currentWordIndex++;
-                const currentRow = getCurrentRow();
+                const currentRow = getCurrentRow(gameContainer, currentWordIndex);
                 setFocusToFirstEmtpyInput(currentRow);
                 return;
             }
             const newRow = createRow(currentWord.length);
             const GuessStarter = CreateGuessStarter(text, currentWord);
             setRowText(newRow, GuessStarter);
-            const currentRowContainer = getCurrentRowContainer();
+            const currentRowContainer = getCurrentRowContainer(gameContainer, currentWordIndex);
             currentRowContainer.insertBefore(newRow, currentRowContainer.firstChild);
             setFocusToFirstEmtpyInput(newRow);
         }
@@ -87,23 +80,6 @@ function createRow(length) {
     }
     return rowDiv;
 }
-function setRowText(row, text) {
-    for (let i = 0; i < row.children.length; i++) {
-        const child = row.children[i];
-        const testWordLetter = text[i] === ' ' ? '' : text[i];
-        child.value = testWordLetter;
-    }
-}
-function setFocusToFirstEmtpyInput(row) {
-    for (let i = 0; i < row.children.length; i++) {
-        const child = row.children[i];
-        console.log("Input value: " + child.value);
-        if (!child.value) {
-            child.focus();
-            break;
-        }
-    }
-}
 function createDivsFromWords(words) {
     words.forEach(word => {
         const wordDiv = document.createElement('div');
@@ -116,11 +92,6 @@ function createDivsFromWords(words) {
 }
 window.onload = function () {
     createDivsFromWords(words);
-    // createRow(testWord.length);
-    // const currentRow = getCurrentRow();
-    // const filteredWord = FilterInitialWord(testWord);
-    // setRowText(currentRow, filteredWord);
-    // setFocusToFirstEmtpyInput(currentRow);
 };
 const imageInput = document.getElementById('image-url-input');
 const imageDisplay = document.getElementById('image-large');

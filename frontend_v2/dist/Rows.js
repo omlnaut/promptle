@@ -1,37 +1,47 @@
-import { compareWords, CreateGuessStarter, FilterInitialWord, LetterState } from './gameUtils.js';
-import { getCurrentRow, getCurrentRowContainer, setFocusToFirstEmtpyInput, setRowText } from './Rows.js';
-
-function setImage() {
-    imageDisplay.src = imageInput.value;
+import { compareWords, CreateGuessStarter, LetterState } from "./gameUtils";
+export function getCurrentRow(gameContainer, currentWordIndex) {
+    const currentRowContainer = getCurrentRowContainer(gameContainer, currentWordIndex);
+    const currentRow = currentRowContainer.firstElementChild;
+    return currentRow;
 }
-
-
-
-
-function getCurrentWord(): string {
-    return words[currentWordIndex];
+export function getCurrentRowContainer(gameContainer, currentWordIndex) {
+    return gameContainer.children[currentWordIndex];
 }
-
-function createInput() {
+export function setRowText(row, text) {
+    for (let i = 0; i < row.children.length; i++) {
+        const child = row.children[i];
+        const testWordLetter = text[i] === ' ' ? '' : text[i];
+        child.value = testWordLetter;
+    }
+}
+export function setFocusToFirstEmtpyInput(row) {
+    for (let i = 0; i < row.children.length; i++) {
+        const child = row.children[i];
+        console.log("Input value: " + child.value);
+        if (!child.value) {
+            child.focus();
+            break;
+        }
+    }
+}
+function createInput(getCurrentWord, gameContainer, currentWordIndex, maxWords) {
     const input = document.createElement('input');
     input.classList.add('letter-input');
     input.maxLength = 1;
-
     // Event listener
     input.addEventListener('input', function () {
         this.value = this.value.toUpperCase();
-
         // Move focus to the next input
         if (this.value && this.nextElementSibling instanceof HTMLInputElement) {
             this.nextElementSibling.focus();
         }
     });
-
     input.addEventListener('keydown', function (event) {
         if (event.key === 'Backspace') {
             if (this.value) {
                 this.value = '';
-            } else if (this.previousElementSibling instanceof HTMLInputElement) {
+            }
+            else if (this.previousElementSibling instanceof HTMLInputElement) {
                 event.preventDefault();
                 this.previousElementSibling.focus();
             }
@@ -39,32 +49,31 @@ function createInput() {
         else if (event.key === 'Enter') {
             const currentWord = getCurrentWord();
             const currentRow = getCurrentRow(gameContainer, currentWordIndex);
-            const values = Array.from(currentRow.children).map(input => (input as HTMLInputElement).value);
+            const values = Array.from(currentRow.children).map(input => input.value);
             const text = values.join('');
-
             if (text.length !== currentWord.length) {
                 return;
             }
             console.log(text);
-
             const result = compareWords(text, currentWord);
             console.log(result);
-
             let guessCorrect = true;
             for (let i = 0; i < result.length; i++) {
-                const child = currentRow.children[i] as HTMLInputElement;
+                const child = currentRow.children[i];
                 if (result[i] === LetterState.Correct) {
                     child.classList.add('correct');
-                } else if (result[i] === LetterState.Present) {
+                }
+                else if (result[i] === LetterState.Present) {
                     guessCorrect = false;
                     child.classList.add('present');
-                } else {
+                }
+                else {
                     guessCorrect = false;
                     child.classList.add('absent');
                 }
             }
             if (guessCorrect) {
-                if (currentWordIndex === words.length - 1) {
+                if (currentWordIndex === maxWords - 1) {
                     alert('You win!');
                 }
                 currentWordIndex++;
@@ -72,10 +81,10 @@ function createInput() {
                 setFocusToFirstEmtpyInput(currentRow);
                 return;
             }
-            const newRow = createRow(currentWord.length);
+            const newInputs = Array.from({ length: currentWord.length }, () => createInput(getCurrentWord, gameContainer, currentWordIndex, maxWords));
+            const newRow = createRow(newInputs);
             const GuessStarter = CreateGuessStarter(text, currentWord);
             setRowText(newRow, GuessStarter);
-
             const currentRowContainer = getCurrentRowContainer(gameContainer, currentWordIndex);
             currentRowContainer.insertBefore(newRow, currentRowContainer.firstChild);
             setFocusToFirstEmtpyInput(newRow);
@@ -83,40 +92,10 @@ function createInput() {
     });
     return input;
 }
-
-function createRow(length: number): HTMLDivElement {
-    const rowDiv = document.createElement('div')
+function createRow(inputs) {
+    const rowDiv = document.createElement('div');
     for (let i = 0; i < length; i++) {
-        rowDiv.appendChild(createInput());
+        rowDiv.appendChild(inputs[i]);
     }
     return rowDiv;
-
 }
-
-
-
-function createDivsFromWords(words: string[]) {
-    words.forEach(word => {
-        const wordDiv = document.createElement('div');
-        wordDiv.classList.add('wordGuessContainer');
-        const newRow = createRow(word.length);
-        setRowText(newRow, FilterInitialWord(word));
-        wordDiv.appendChild(newRow);
-        gameContainer.appendChild(wordDiv);
-    });
-}
-
-window.onload = function () {
-    createDivsFromWords(words);
-
-}
-
-const imageInput = document.getElementById('image-url-input')! as HTMLInputElement;
-const imageDisplay = document.getElementById('image-large')! as HTMLImageElement;
-const startButton = document.getElementById('start-button')! as HTMLButtonElement;
-const gameContainer = document.getElementById('game-container')! as HTMLDivElement;
-
-let currentWordIndex = 0;
-const words = ["TREBUCHET", "ALCHEMY"];
-
-startButton.addEventListener('click', setImage);
