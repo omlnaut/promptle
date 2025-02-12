@@ -31,82 +31,106 @@ export function setFocusToFirstEmtpyInput(row: HTMLDivElement) {
     }
 }
 
-export function createInput(getCurrentWord: () => string,
+export function createInput(
+    getCurrentWord: () => string,
     increaseCurrentWordIndexCallback: () => void,
     getCurrentWordIndex: () => number,
     gameContainer: HTMLDivElement,
-    maxWords: number) {
+    maxWords: number
+) {
     const input = document.createElement('input');
     input.classList.add('letter-input');
     input.maxLength = 1;
 
     // Event listener
-    input.addEventListener('input', function () {
-        this.value = this.value.toUpperCase();
-
-        // Move focus to the next input
-        if (this.value && this.nextElementSibling instanceof HTMLInputElement) {
-            this.nextElementSibling.focus();
-        }
-    });
+    input.addEventListener('input', handleInput);
 
     input.addEventListener('keydown', function (event) {
-        if (event.key === 'Backspace') {
-            if (this.value) {
-                this.value = '';
-            } else if (this.previousElementSibling instanceof HTMLInputElement) {
-                event.preventDefault();
-                this.previousElementSibling.focus();
-            }
-        }
-        else if (event.key === 'Enter') {
-            const currentWord = getCurrentWord();
-            const currentRow = getCurrentRow(gameContainer, getCurrentWordIndex());
-            const values = Array.from(currentRow.children).map(input => (input as HTMLInputElement).value);
-            const text = values.join('');
-
-            if (text.length !== currentWord.length) {
-                return;
-            }
-            console.log(text);
-
-            const result = compareWords(text, currentWord);
-            console.log(result);
-
-            let guessCorrect = true;
-            for (let i = 0; i < result.length; i++) {
-                const child = currentRow.children[i] as HTMLInputElement;
-                if (result[i] === LetterState.Correct) {
-                    child.classList.add('correct');
-                } else if (result[i] === LetterState.Present) {
-                    guessCorrect = false;
-                    child.classList.add('present');
-                } else {
-                    guessCorrect = false;
-                    child.classList.add('absent');
-                }
-            }
-            if (guessCorrect) {
-                if (getCurrentWordIndex() === maxWords - 1) {
-                    alert('You win!');
-                }
-                increaseCurrentWordIndexCallback();
-
-                const currentRow = getCurrentRow(gameContainer, getCurrentWordIndex());
-                setFocusToFirstEmtpyInput(currentRow);
-                return;
-            }
-            const newInputs = Array.from({ length: currentWord.length }, () => createInput(getCurrentWord, increaseCurrentWordIndexCallback, getCurrentWordIndex, gameContainer, maxWords));
-            const newRow = createRow(newInputs);
-            const GuessStarter = CreateGuessStarter(text, currentWord);
-            setRowText(newRow, GuessStarter);
-
-            const currentRowContainer = getCurrentRowContainer(gameContainer, getCurrentWordIndex());
-            currentRowContainer.insertBefore(newRow, currentRowContainer.firstChild);
-            setFocusToFirstEmtpyInput(newRow);
-        }
+        handleKeydown.call(this, event, getCurrentWordIndex, getCurrentWord, increaseCurrentWordIndexCallback, gameContainer, maxWords);
     });
     return input;
+}
+
+function handleInput(this: HTMLInputElement) {
+    this.value = this.value.toUpperCase();
+
+    // Move focus to the next input
+    if (this.value && this.nextElementSibling instanceof HTMLInputElement) {
+        this.nextElementSibling.focus();
+    }
+
+}
+
+function handleKeydown(this: HTMLInputElement, event: KeyboardEvent, getCurrentWordIndex: () => number, getCurrentWord: () => string, increaseCurrentWordIndexCallback: () => void, gameContainer: HTMLDivElement, maxWords: number) {
+    if (event.key === 'Backspace') {
+        handleBackspace.call(this, event);
+    } else if (event.key === 'Enter') {
+        handleEnter.call(this, getCurrentWordIndex, getCurrentWord, increaseCurrentWordIndexCallback, gameContainer, maxWords);
+    }
+}
+function handleEnter(
+    this: HTMLInputElement,
+    getCurrentWordIndex: () => number,
+    getCurrentWord: () => string,
+    increaseCurrentWordIndexCallback: () => void,
+    gameContainer: HTMLDivElement,
+    maxWords: number
+) {
+    const currentWord = getCurrentWord();
+    const currentRow = getCurrentRow(gameContainer, getCurrentWordIndex());
+    const values = Array.from(currentRow.children).map(input => (input as HTMLInputElement).value);
+    const text = values.join('');
+
+    if (text.length !== currentWord.length) {
+        return;
+    }
+    console.log(text);
+
+    const result = compareWords(text, currentWord);
+    console.log(result);
+
+    let guessCorrect = true;
+    for (let i = 0; i < result.length; i++) {
+        const child = currentRow.children[i] as HTMLInputElement;
+        if (result[i] === LetterState.Correct) {
+            child.classList.add('correct');
+        } else if (result[i] === LetterState.Present) {
+            guessCorrect = false;
+            child.classList.add('present');
+        } else {
+            guessCorrect = false;
+            child.classList.add('absent');
+        }
+    }
+    if (guessCorrect) {
+        if (getCurrentWordIndex() === maxWords - 1) {
+            alert('You win!');
+        }
+        increaseCurrentWordIndexCallback();
+
+        const currentRow = getCurrentRow(gameContainer, getCurrentWordIndex());
+        setFocusToFirstEmtpyInput(currentRow);
+        return;
+    }
+    const newInputs = Array.from({ length: currentWord.length }, () => createInput(getCurrentWord, increaseCurrentWordIndexCallback, getCurrentWordIndex, gameContainer, maxWords));
+    const newRow = createRow(newInputs);
+    const GuessStarter = CreateGuessStarter(text, currentWord);
+    setRowText(newRow, GuessStarter);
+
+    const currentRowContainer = getCurrentRowContainer(gameContainer, getCurrentWordIndex());
+    currentRowContainer.insertBefore(newRow, currentRowContainer.firstChild);
+    setFocusToFirstEmtpyInput(newRow);
+
+}
+
+function handleBackspace(this: HTMLInputElement, event: KeyboardEvent) {
+    if (this.value) {
+        this.value = '';
+    } else if (this.previousElementSibling instanceof HTMLInputElement) {
+        event.preventDefault();
+        this.previousElementSibling.focus();
+    }
+
 }
 
 

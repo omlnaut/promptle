@@ -2,6 +2,19 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"type": "typescript",
+			"tsconfig": "frontend_v2/tsconfig.json",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"label": "tsc: watch - tsconfig.json"
+		},
+		{
 			"label": "clean (functions)",
 			"command": "dotnet",
 			"args": [
