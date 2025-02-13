@@ -1,12 +1,32 @@
 import { FilterInitialWord } from './gameUtils.js';
 import { createInput, createRow, setRowText } from './Rows.js';
+import { describeImage } from './description.js';
 
-function setImage() {
+async function setImage() {
+    // Clear previous game state
+    gameContainer.innerHTML = '';
+    currentWordIndex = 0;
+    words = [];
+
+    // Set image and wait for description
     imageDisplay.src = imageInput.value;
+    try {
+        const response = await describeImage(imageInput.value);
+        console.log('Description received:', response);
+
+        // Extract words array from response object
+        const description = response.words;
+
+        if (Array.isArray(description)) {
+            setWords(description);
+            createDivsFromWords(words);
+        } else {
+            console.error('Invalid response format - words property is not an array:', response);
+        }
+    } catch (error) {
+        console.error('Error getting image description:', error);
+    }
 }
-
-
-
 
 function getCurrentWord(): string {
     return words[currentWordIndex];
@@ -20,8 +40,9 @@ function getCurrentWordIndex(): number {
     return currentWordIndex;
 }
 
-
-
+function setWords(newWords: string[]) {
+    words = newWords;
+}
 
 function createDivsFromWords(words: string[]) {
     words.forEach(word => {
@@ -39,7 +60,7 @@ function createDivsFromWords(words: string[]) {
 
 window.onload = function () {
     startButton.addEventListener('click', setImage);
-    createDivsFromWords(words);
+    // createDivsFromWords(words);
 
 }
 
@@ -49,6 +70,6 @@ const startButton = document.getElementById('start-button')! as HTMLButtonElemen
 const gameContainer = document.getElementById('game-container')! as HTMLDivElement;
 
 let currentWordIndex = 0;
-const words = ["TREBUCHET", "ALCHEMY", "TESTI"];
+let words: string[] = [];
 
 startButton.addEventListener('click', setImage);
