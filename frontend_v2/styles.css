@@ -21,3 +21,20 @@
     background-color: grey;
     color: white;
 }
+
+#main-container {
+    display: flex;
+}
+
+#image-container {
+    margin-right: 20px;
+}
+
+#image-large {
+    max-width: 100%;
+    height: auto;
+}
+
+#game-container {
+    flex-grow: 1;
+}
