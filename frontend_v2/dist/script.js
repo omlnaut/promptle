@@ -24,6 +24,7 @@ function createDivsFromWords(words) {
     });
 }
 window.onload = function () {
+    startButton.addEventListener('click', setImage);
     createDivsFromWords(words);
 };
 const imageInput = document.getElementById('image-url-input');
@@ -31,5 +32,5 @@ const imageDisplay = document.getElementById('image-large');
 const startButton = document.getElementById('start-button');
 const gameContainer = document.getElementById('game-container');
 let currentWordIndex = 0;
-const words = ["TREBUCHET", "ALCHEMY"];
+const words = ["TREBUCHET", "ALCHEMY", "TESTI"];
 startButton.addEventListener('click', setImage);

@@ -38,6 +38,7 @@ function createDivsFromWords(words: string[]) {
 }
 
 window.onload = function () {
+    startButton.addEventListener('click', setImage);
     createDivsFromWords(words);
 
 }
@@ -48,6 +49,6 @@ const startButton = document.getElementById('start-button')! as HTMLButtonElemen
 const gameContainer = document.getElementById('game-container')! as HTMLDivElement;
 
 let currentWordIndex = 0;
-const words = ["TREBUCHET", "ALCHEMY"];
+const words = ["TREBUCHET", "ALCHEMY", "TESTI"];
 
 startButton.addEventListener('click', setImage);
